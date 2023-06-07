@@ -6,6 +6,7 @@ import App from './App';
 import {Provider} from "react-redux";
 import store from './store/index';
 import {createBrowserRouter, createRoutesFromElements, redirect, Route, RouterProvider} from "react-router-dom";
+import TestsListPage from "./pages/tests-list.page";
 
 export class RoutesConfig {
     public static root = '/';
@@ -17,9 +18,6 @@ export class RoutesConfig {
 
 const redirectFn = (to: string) => () => redirect(to);
 
-function A() {
-    return <span>A</span>
-}
 
 function B() {
     return <span>B</span>
@@ -29,11 +27,11 @@ function C() {
 }
 
 
-
+// stats of test too (mb in test)
 const router = createBrowserRouter(
     createRoutesFromElements(
         <Route path={RoutesConfig.root} Component={App}>
-            <Route path={RoutesConfig.tests} Component={A} />
+            <Route path={RoutesConfig.tests} Component={TestsListPage} />
             <Route path={RoutesConfig.edit} Component={C}>
                 <Route path={RoutesConfig.any} loader={redirectFn("") }></Route>
             </Route>
