@@ -1,10 +1,8 @@
 import styled from "@emotion/styled";
-import {cloneElement, Component, createRef, Fragment, useRef} from "react";
-import useResize from "../utils/resize";
-import {Flipped, Flipper} from "react-flip-toolkit";
-import {Button} from "@mui/material";
-import {Add} from "@mui/icons-material";
+import {Component, createRef, useRef} from "react";
 import {Link} from "react-router-dom";
+import {useInViewCallBack} from "../utils/in-view";
+import {createQuizButtonVisibilityService} from "../utils/create-quiz-button-visible.util";
 
 class FlipAnimated extends Component {
     private ref = createRef<HTMLElement>();
@@ -112,6 +110,19 @@ function TestCard({ name }: { name: string }) {
     </Card>
 }
 
+function AddQuizCard() {
+    const elem = useRef<HTMLDivElement>(null);
+    useInViewCallBack(elem, val => createQuizButtonVisibilityService.updateVisibility(val));
+
+    return <Card ref={elem}>
+        <Link to='0/edit'>
+            <Placeholder>
+                Create new quiz
+            </Placeholder>
+        </Link>
+    </Card>;
+}
+
 function TestsListPage() {
     const grid = useRef<HTMLDivElement>(null);
 
@@ -136,15 +147,10 @@ function TestsListPage() {
         },
     ]
 
+
     return <ColumnContainer>
         <Grid ref={grid}>
-            <Card>
-                <Link to='0/edit'>
-                    <Placeholder>
-                        Create new quiz
-                    </Placeholder>
-                </Link>
-            </Card>
+            <AddQuizCard />
             {
                 tests.map(test => <TestCard key={test.id} name={test.name} />)
             }

@@ -1,8 +1,9 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {Outlet} from "react-router-dom";
+import {Link, Outlet} from "react-router-dom";
 import styled from 'styled-components';
 import {RootState} from './store';
+import {createQuizButtonVisibilityService} from "./utils/create-quiz-button-visible.util";
 
 const Row = styled.div`
   width: 100%;
@@ -13,10 +14,31 @@ const Row = styled.div`
   border-bottom: 1px solid #ccc; 
 `;
 
+const Right = styled.span`
+  margin-left: auto;
+  
+  a {
+    color: #777;  
+  }
+  
+  a:hover {
+    color: #555;
+  }
+`;
+
+
 function Header() {
+    const [showCreate, setShowCreate] = useState(false);
+
+    useEffect(() => {
+        createQuizButtonVisibilityService.init(val => setShowCreate(!val));
+    }, []);
 
     return <Row>
-        Header
+        <span>Header</span>
+        { showCreate && <Right>
+            <Link to='tests/0/edit' onClick={() => createQuizButtonVisibilityService.updateVisibility(true)}>Create quiz</Link>
+        </Right> }
     </Row>
 }
 
