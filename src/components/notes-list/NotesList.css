@@ -1,0 +1,54 @@
+.note-container {
+    display: block;
+    padding: 0 5px 10px;
+    width: 250px;
+    position: relative;
+}
+
+.notes-container {
+    width: 100%;
+    position: relative;
+    overflow-y: scroll;
+}
+
+.overlay {
+    position: absolute;
+    top: -10px;
+    left: -5px;
+    width: calc(100% + 5px);
+    height: calc(100% + 5px);
+    z-index: 5;
+}
+
+.content {
+    white-space: pre-wrap;
+}
+
+.note {
+    z-index: 1;
+    position: absolute;
+    will-change: transform;
+    opacity: 0;
+    transition: transform 350ms ease-in-out;
+    transform-origin: 35% 100%;
+    display: block;
+}
+
+/*
+.note {
+    z-index: 1;
+    position: absolute;
+    will-change: transform;
+    opacity: 0;
+    transition: transform 350ms ease-in-out;
+    transform-origin: 35% 100%;
+    display: block;
+
+    &.cdk-drag-dragging {
+      z-index: 10;
+      transition: none;
+      transform: none;
+      pointer-events: none;
+    }
+  }
+ */

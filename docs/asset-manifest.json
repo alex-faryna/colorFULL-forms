@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/react-table/static/css/main.f7b51ae9.css",
+    "main.js": "/react-table/static/js/main.73a71e1e.js",
+    "static/js/787.fec58e52.chunk.js": "/react-table/static/js/787.fec58e52.chunk.js",
+    "static/media/axios.cjs": "/react-table/static/media/axios.ed9a1e9804f9a76743bb.cjs",
+    "index.html": "/react-table/index.html",
+    "main.f7b51ae9.css.map": "/react-table/static/css/main.f7b51ae9.css.map",
+    "main.73a71e1e.js.map": "/react-table/static/js/main.73a71e1e.js.map",
+    "787.fec58e52.chunk.js.map": "/react-table/static/js/787.fec58e52.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f7b51ae9.css",
+    "static/js/main.73a71e1e.js"
+  ]
+}
