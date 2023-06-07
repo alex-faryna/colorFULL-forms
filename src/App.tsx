@@ -1,6 +1,8 @@
-import React from 'react';
-import {useDispatch} from 'react-redux';
+import React, {useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import {Outlet} from "react-router-dom";
+import { RootState } from './store';
+import {setLoading} from "./store/tests-state";
 
 
 
@@ -8,10 +10,24 @@ import {Outlet} from "react-router-dom";
 
 function App() {
     const dispatch = useDispatch();
+    const state = useSelector((state: RootState) => state.tests);
 
-    // add header too for menu or smth
+    useEffect(() => {
+        // dispatch(setLoading());
+    }, []);
+
+    console.log('render');
     return <>
-        <Outlet />
+        {
+            // addd header here too
+        }
+        {
+            {
+                loading: <span>Loading</span>,
+                error: <span>Error</span>,
+                idle: <Outlet />
+            }[state.loading]
+        }
     </>
 }
 

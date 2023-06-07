@@ -4,7 +4,7 @@ import {Test} from "../models/test.model";
 // would need some rework when other pages are added, as sprint is just one of the state that can be stored here yk
 // i would asy we need to store the tasks (even if in the http the come with the sprint) and the sprint separately
 export type TestsState = {
-    loading: 'idle' | 'loading' | 'error' | 'loaded',
+    loading: 'idle' | 'loading' | 'error';
     // user or smth
     tests: Test[];
 };
