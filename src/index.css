@@ -33,31 +33,4 @@ code {
     monospace;
 }
 
-.notes {
-  z-index: 10;
-}
 
-.numbers-grid-container {
-  width: 100vw;
-  height: 100vh;
-  overflow: auto;
-  position: relative;
-}
-
-.numbers-grid {
-  display: grid;
-  padding: 0;
-}
-
-.grid-cell {
-  border: 1px solid black;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  background: white;
-}
-
-.grid-header-cell {
-  /* position: sticky; */
-}

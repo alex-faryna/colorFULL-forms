@@ -12,8 +12,8 @@ export class RoutesConfig {
     public static any = '*';
     public static tests = 'tests';
     public static test = `${RoutesConfig.tests}/:testId`; // for unauthorized users too
+    public static edit = `${RoutesConfig.test}/edit`;
 }
-
 
 const redirectFn = (to: string) => () => redirect(to);
 
@@ -24,15 +24,19 @@ function A() {
 function B() {
     return <span>B</span>
 }
-
 function C() {
     return <span>C</span>
 }
+
+
 
 const router = createBrowserRouter(
     createRoutesFromElements(
         <Route path={RoutesConfig.root} Component={App}>
             <Route path={RoutesConfig.tests} Component={A} />
+            <Route path={RoutesConfig.edit} Component={C}>
+                <Route path={RoutesConfig.any} loader={redirectFn("") }></Route>
+            </Route>
             <Route path={RoutesConfig.test} Component={B}>
                 <Route path={RoutesConfig.any} loader={redirectFn("") }></Route>
             </Route>

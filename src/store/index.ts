@@ -1,8 +1,8 @@
 import {configureStore} from "@reduxjs/toolkit";
-import organizerReducer, {TaskOrganizerState} from './task-organizer-state'
+import testsReducer, {TestsState} from './tests-state'
 
 export interface RootState {
-    organizer: TaskOrganizerState,
+    tests: TestsState,
 }
 
 const logger = (store: { getState: () => any; }) => (next: (arg0: any) => any) => (action: { type: any; }) => {
@@ -16,7 +16,7 @@ const logger = (store: { getState: () => any; }) => (next: (arg0: any) => any) =
 
 const store = configureStore({
     reducer: {
-        organizer: organizerReducer,
+        tests: testsReducer,
     },
     // middleware: [logger],
 });
