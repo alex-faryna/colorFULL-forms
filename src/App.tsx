@@ -1,12 +1,28 @@
 import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {Outlet} from "react-router-dom";
+import styled from 'styled-components';
 import {RootState} from './store';
-import {setLoading} from "./store/tests-state";
 
+const Row = styled.div`
+  width: 100%;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  border-bottom: 1px solid #ccc; 
+`;
 
+function Header() {
 
+    return <Row>
+        Header
+    </Row>
+}
 
+const Content = styled.div`
+    overflow-y: auto;
+`;
 
 function App() {
     const dispatch = useDispatch();
@@ -18,16 +34,16 @@ function App() {
 
     console.log('render');
     return <>
-        {
-            // addd header here too
-        }
-        {
+        <Header />
+        <Content>
             {
-                loading: <span>Loading</span>,
-                error: <span>Error</span>,
-                idle: <Outlet />
-            }[state.loading]
-        }
+                {
+                    loading: <span>Loading</span>,
+                    error: <span>Error</span>,
+                    idle: <Outlet />
+                }[state.loading]
+            }
+        </Content>
     </>
 }
 

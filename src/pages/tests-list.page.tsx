@@ -2,6 +2,9 @@ import styled from "@emotion/styled";
 import {cloneElement, Component, createRef, Fragment, useRef} from "react";
 import useResize from "../utils/resize";
 import {Flipped, Flipper} from "react-flip-toolkit";
+import {Button} from "@mui/material";
+import {Add} from "@mui/icons-material";
+import {Link} from "react-router-dom";
 
 class FlipAnimated extends Component {
     private ref = createRef<HTMLElement>();
@@ -55,7 +58,7 @@ const ColumnContainer = styled.div`
 const Grid = styled.div`
   max-width: 2000px;
   width: 70%;
-  padding: 4rem 2rem;
+  padding: 2rem;
   display: grid;
   gap: 12px;
   grid-template-columns: repeat( auto-fill, minmax(250px, 1fr) );
@@ -67,16 +70,41 @@ const Card = styled.div`
   flex-direction: column;
   height: 200px;
   align-items: center;
+  justify-content: center;
+  
+  > * {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration-color: #aaa;
+    max-width: 300px;
+  }
 `;
 
 const InnerCard = styled.div`
   padding: 1rem;
   border: 1px solid #ccc;
   border-radius: 4px;
+`;
+
+const Placeholder = styled.div`
   width: 100%;
   height: 100%;
-  max-width: 300px;
+  border: 2px dashed #ccc;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  cursor: pointer;
+  
+  &:hover {
+    color: #777;
+    border-color: #999;
+  }
 `;
+
+
 
 function TestCard({ name }: { name: string }) {
     return <Card>
@@ -86,7 +114,6 @@ function TestCard({ name }: { name: string }) {
 
 function TestsListPage() {
     const grid = useRef<HTMLDivElement>(null);
-    const width = useResize(grid, 150);
 
     const tests = [
         {
@@ -95,24 +122,41 @@ function TestsListPage() {
         },
         {
             id: 1,
-            name: 'Test 2',
+            name: 'Test 1',
         },
         {
+            id: 2,
+            name: 'Test 1',
+        },{
             id: 3,
-            name: 'Test 3',
-        },
-        {
+            name: 'Test 1',
+        },{
             id: 4,
-            name: 'Test 4',
-        },
-        {
-            id: 5,
-            name: 'Test 5',
+            name: 'Test 1',
         },
     ]
 
     return <ColumnContainer>
         <Grid ref={grid}>
+            <Card>
+                <Link to='0/edit'>
+                    <Placeholder>
+                        Create new quiz
+                    </Placeholder>
+                </Link>
+            </Card>
+            {
+                tests.map(test => <TestCard key={test.id} name={test.name} />)
+            }
+            {
+                tests.map(test => <TestCard key={test.id} name={test.name} />)
+            }
+            {
+                tests.map(test => <TestCard key={test.id} name={test.name} />)
+            }
+            {
+                tests.map(test => <TestCard key={test.id} name={test.name} />)
+            }
             {
                 tests.map(test => <TestCard key={test.id} name={test.name} />)
             }

@@ -11,7 +11,7 @@ export interface Question {
 }
 
 export interface Test {
-    id: number;
+    id: string;
     title: string;
     questions: Question[];
 }

@@ -9,9 +9,10 @@ body {
 }
 
 #root {
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
@@ -33,4 +34,19 @@ code {
     monospace;
 }
 
+/*
+.MuiButton-root {
+  min-width: 0;
+  aspect-ratio: 1;
+  width: 40px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}*/
 
+a {
+  color: inherit;
+}
