@@ -34,10 +34,12 @@ function Header() {
         createQuizButtonVisibilityService.init(val => setShowCreate(!val));
     }, []);
 
+    const callback = () => createQuizButtonVisibilityService.updateVisibility(true);
+
     return <Row>
         <span>Header</span>
         { showCreate && <Right>
-            <Link to='tests/0/edit' onClick={() => createQuizButtonVisibilityService.updateVisibility(true)}>Create quiz</Link>
+            <Link to='tests/0/edit' onClick={callback}>Create quiz</Link>
         </Right> }
     </Row>
 }

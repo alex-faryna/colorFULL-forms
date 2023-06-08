@@ -7,6 +7,7 @@ import {Provider} from "react-redux";
 import store from './store/index';
 import {createBrowserRouter, createRoutesFromElements, redirect, Route, RouterProvider} from "react-router-dom";
 import TestsListPage from "./pages/tests-list.page";
+import EditTestPage from "./pages/edit-test.page";
 
 export class RoutesConfig {
     public static root = '/';
@@ -14,6 +15,7 @@ export class RoutesConfig {
     public static tests = 'tests';
     public static test = `${RoutesConfig.tests}/:testId`; // for unauthorized users too
     public static edit = `${RoutesConfig.test}/edit`;
+    // add stats mb page or mb in edit
 }
 
 const redirectFn = (to: string) => () => redirect(to);
@@ -32,7 +34,7 @@ const router = createBrowserRouter(
     createRoutesFromElements(
         <Route path={RoutesConfig.root} Component={App}>
             <Route path={RoutesConfig.tests} Component={TestsListPage} />
-            <Route path={RoutesConfig.edit} Component={C}>
+            <Route path={RoutesConfig.edit} Component={EditTestPage}>
                 <Route path={RoutesConfig.any} loader={redirectFn("") }></Route>
             </Route>
             <Route path={RoutesConfig.test} Component={B}>
