@@ -1,19 +1,7 @@
 import styled from "@emotion/styled";
-import { TextField } from "@mui/material";
 import {useParams} from "react-router-dom";
-import {useForm, useWatch} from "react-hook-form";
-import {
-    ChangeEvent,
-    Children,
-    cloneElement, createContext,
-    createElement,
-    memo,
-    ReactChildren, ReactNode,
-    useCallback, useContext,
-    useEffect,
-    useState
-} from "react";
-import {ReactJSXElementChildrenAttribute} from "@emotion/react/types/jsx-namespace";
+import {FormProvider, useForm, useFormContext, useWatch} from "react-hook-form";
+import {ReactNode} from "react";
 
 const ColumnContainer = styled.div`
   display: flex;
@@ -32,10 +20,9 @@ const EditTestForm = styled.div`
   flex-direction: column;
 `;
 
-const FormContext = createContext({});
 
-function Form({ children, onSubmit }: { children: ReactNode[], onSubmit?: any }) {
-    const { handleSubmit } = useContext(FormContext) as any;
+function Form<T>({ children, onSubmit }: { children: ReactNode[], onSubmit: (value: any) => void }) {
+    const { handleSubmit } = useFormContext();
 
     console.log(`Render form`);
     return <form onSubmit={handleSubmit(onSubmit)}>
@@ -44,7 +31,7 @@ function Form({ children, onSubmit }: { children: ReactNode[], onSubmit?: any })
 }
 
 export function Input({ name, ...rest }: any) {
-    const { register } = useContext(FormContext) as any;
+    const { register } = useFormContext();
     console.log(`Render input ${name}`);
     return <input {...register(name)} {...rest} />
 }
@@ -62,7 +49,7 @@ export function Input({ name, ...rest }: any) {
 } */
 
 function Title() {
-    const { control } = useContext(FormContext) as any;
+    const { control } = useFormContext();
     const val = useWatch({ control, name: 'title' });
     console.log('Render title');
     return <p>{ val }</p>
@@ -74,13 +61,12 @@ function EditTestPage() {
 
     function submit(val: unknown): void {
         console.log(val);
-        console.log('!!');
     }
 
     console.log('Render page');
     return <ColumnContainer>
         <EditTestForm>
-            <FormContext.Provider value={form}>
+            <FormProvider {...form}>
                 <p>Hello { testId }</p>
                 <Title />
                 <Form onSubmit={submit}>
@@ -88,7 +74,7 @@ function EditTestPage() {
                     <Input name="description" />
                     <input type="submit" value="Submit" />
                 </Form>
-            </FormContext.Provider>
+            </FormProvider>
         </EditTestForm>
     </ColumnContainer>
 }
