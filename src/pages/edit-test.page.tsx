@@ -21,7 +21,7 @@ const EditTestForm = styled.div`
 `;
 
 
-function Form<T>({ children, onSubmit }: { children: ReactNode[], onSubmit: (value: any) => void }) {
+function Form<T>({ children, onSubmit }: { children: ReactNode[], onSubmit: (value: unknown) => void }) {
     const { handleSubmit } = useFormContext();
 
     console.log(`Render form`);
@@ -30,7 +30,7 @@ function Form<T>({ children, onSubmit }: { children: ReactNode[], onSubmit: (val
     </form>
 }
 
-export function Input({ name, ...rest }: any) {
+export function InputWrapper({ name, ...rest }: { name: string }) {
     const { register } = useFormContext();
     console.log(`Render input ${name}`);
     return <input {...register(name)} {...rest} />
@@ -49,8 +49,7 @@ export function Input({ name, ...rest }: any) {
 } */
 
 function Title() {
-    const { control } = useFormContext();
-    const val = useWatch({ control, name: 'title' });
+    const val = useWatch({ name: 'title' });
     console.log('Render title');
     return <p>{ val }</p>
 }
@@ -70,8 +69,8 @@ function EditTestPage() {
                 <p>Hello { testId }</p>
                 <Title />
                 <Form onSubmit={submit}>
-                    <Input name="title" />
-                    <Input name="description" />
+                    <InputWrapper name="title" />
+                    <InputWrapper name="description" />
                     <input type="submit" value="Submit" />
                 </Form>
             </FormProvider>
