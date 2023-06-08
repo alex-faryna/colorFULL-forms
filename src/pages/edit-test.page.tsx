@@ -1,7 +1,9 @@
 import styled from "@emotion/styled";
 import {useParams} from "react-router-dom";
-import {FormProvider, useFieldArray, useForm, useFormContext, useWatch} from "react-hook-form";
-import {ReactNode} from "react";
+import {FormProvider, useController, useFieldArray, useForm, useFormContext, useWatch} from "react-hook-form";
+import ButtonGroup from "@mui/material/ButtonGroup";
+import {Button, MenuItem, Select, TextField, ToggleButton, ToggleButtonGroup} from "@mui/material";
+import {memo} from "react";
 
 const ColumnContainer = styled.div`
   display: flex;
@@ -12,33 +14,33 @@ const ColumnContainer = styled.div`
 `;
 
 const EditTestForm = styled.div`
-  max-width: 2000px;
-  width: 70%;
+  max-width: 1000px;
+  width: 50%;
   padding: 2rem;
   height: 100%;
   overflow-y: auto;
   
   display: flex;
   flex-direction: column;
+  gap: 16px;
+`;
+
+const InputRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+const Bold = styled.span`
+  font-weight: 600;
 `;
 
 export function TextInput({ name, ...rest }: { name: string }) {
     const { register } = useFormContext();
-    console.log(`Render input ${name}`);
-    return <input {...register(name)} {...rest} />
+    // console.log(`Render input ${name}`);
+    return <TextField {...register(name)} variant="standard" />;
 }
 
-/* export function Select({ register, options, name, ...rest }: any) {
-    return (
-        <select {...register(name)} {...rest}>
-            {options.map((value: any) => (
-                <option key={value} value={value}>
-                    {value}
-                </option>
-            ))}
-        </select>
-    )
-} */
 
 function Title() {
     const val = useWatch({ name: 'title' });
@@ -47,15 +49,53 @@ function Title() {
 }
 
 function TextInputRow({ label, name }: { label: string, name: string }) {
-    return <div>
-        <p>{ label }</p>
+    return <InputRow>
+        <Bold>{ label }</Bold>
         <TextInput name={name} />
-    </div>
+    </InputRow>
 }
 
-function QuestionBlock() {
+const QuestionCard = styled.div`
+  border-radius: 6px;
+  width: 100%;
+  border: 1px solid #ccc;
+  padding: 1rem;
+`;
 
-}
+const Row = styled.div`
+  display: flex;
+  align-items: flex-start;
+`;
+
+const Right = styled.div`
+  margin-left: auto;
+`;
+
+const QuestionBlock = memo(function ({ name }: { name: string }) {
+    const { field } = useController({ name: `${name}.type` })
+
+    console.log(`Render question ${name} ${field.value}`);
+
+    return <QuestionCard>
+        <Row>
+            <TextInputRow label='Questions name:' name={`${name}.name`} />
+            <Right>
+                <Select className='type-select' variant='standard'{...field}>
+                    <MenuItem value='text'>Text</MenuItem>
+                    <MenuItem value='paragraph'>Paragraph</MenuItem>
+                    <MenuItem value='select'>Select</MenuItem>
+                </Select>
+            </Right>
+        </Row>
+        {
+            {
+                text: <span>Text</span>,
+                paragraph: <span>Paragraph</span>,
+                select: <span>Options</span>
+            }[field.value as string]
+        }
+    </QuestionCard>
+})
 
 function QuestionsBlock() {
     const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({
@@ -64,11 +104,11 @@ function QuestionsBlock() {
     })
 
     console.log('Render questions block');
-    return <ColumnContainer>
+    return <ColumnContainer style={{ gap: '16px' }}>
         {
-            fields.map(field => <span key={field.id}>{ field.id }</span>)
+            fields.map((key, idx) => <QuestionBlock key={key.id} name={`questions.${idx}`} />)
         }
-        <button onClick={() => append(3)}>+</button>
+        <button onClick={() => append({ type: 'text', name: 'aha' })}>+</button>
     </ColumnContainer>
 }
 
