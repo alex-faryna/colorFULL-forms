@@ -20,7 +20,6 @@ const EditTestForm = styled.div`
   flex-direction: column;
 `;
 
-
 function Form<T>({ children, onSubmit }: { children: ReactNode[], onSubmit: (value: unknown) => void }) {
     const { handleSubmit } = useFormContext();
 
@@ -30,7 +29,7 @@ function Form<T>({ children, onSubmit }: { children: ReactNode[], onSubmit: (val
     </form>
 }
 
-export function InputWrapper({ name, ...rest }: { name: string }) {
+export function TextInput({ name, ...rest }: { name: string }) {
     const { register } = useFormContext();
     console.log(`Render input ${name}`);
     return <input {...register(name)} {...rest} />
@@ -54,9 +53,16 @@ function Title() {
     return <p>{ val }</p>
 }
 
+function TextInputRow({ label, name }: { label: string, name: string }) {
+    return <div>
+        <p>{ label }</p>
+        <TextInput name={name} />
+    </div>
+}
+
 function EditTestPage() {
     const { testId } = useParams();
-    const form = useForm({ defaultValues: { title: '', description: 'Lol' } })
+    const form = useForm({ defaultValues: { title: '', additional: { description: 'Lol' } } })
 
     function submit(val: unknown): void {
         console.log(val);
@@ -69,8 +75,8 @@ function EditTestPage() {
                 <p>Hello { testId }</p>
                 <Title />
                 <Form onSubmit={submit}>
-                    <InputWrapper name="title" />
-                    <InputWrapper name="description" />
+                    <TextInputRow label='Title' name="title" />
+                    <TextInputRow label='Description' name="additional.description" />
                     <input type="submit" value="Submit" />
                 </Form>
             </FormProvider>
