@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import {useParams} from "react-router-dom";
-import {FormProvider, useForm, useFormContext, useWatch} from "react-hook-form";
+import {FormProvider, useFieldArray, useForm, useFormContext, useWatch} from "react-hook-form";
 import {ReactNode} from "react";
 
 const ColumnContainer = styled.div`
@@ -15,19 +15,12 @@ const EditTestForm = styled.div`
   max-width: 2000px;
   width: 70%;
   padding: 2rem;
+  height: 100%;
+  overflow-y: auto;
   
   display: flex;
   flex-direction: column;
 `;
-
-function Form<T>({ children, onSubmit }: { children: ReactNode[], onSubmit: (value: unknown) => void }) {
-    const { handleSubmit } = useFormContext();
-
-    console.log(`Render form`);
-    return <form onSubmit={handleSubmit(onSubmit)}>
-        { children }
-    </form>
-}
 
 export function TextInput({ name, ...rest }: { name: string }) {
     const { register } = useFormContext();
@@ -60,12 +53,31 @@ function TextInputRow({ label, name }: { label: string, name: string }) {
     </div>
 }
 
+function QuestionBlock() {
+
+}
+
+function QuestionsBlock() {
+    const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({
+        name: 'questions',
+        rules: { minLength: 1 }
+    })
+
+    console.log('Render questions block');
+    return <ColumnContainer>
+        {
+            fields.map(field => <span key={field.id}>{ field.id }</span>)
+        }
+        <button onClick={() => append(3)}>+</button>
+    </ColumnContainer>
+}
+
 function EditTestPage() {
     const { testId } = useParams();
-    const form = useForm({ defaultValues: { title: '', additional: { description: 'Lol' } } })
+    const form = useForm({ defaultValues: { title: '', questions: [], additional: { description: 'Lol' } } })
 
-    function submit(val: unknown): void {
-        console.log(val);
+    const back = (): void => {
+        console.log(form.getValues());
     }
 
     console.log('Render page');
@@ -74,11 +86,13 @@ function EditTestPage() {
             <FormProvider {...form}>
                 <p>Hello { testId }</p>
                 <Title />
-                <Form onSubmit={submit}>
-                    <TextInputRow label='Title' name="title" />
-                    <TextInputRow label='Description' name="additional.description" />
-                    <input type="submit" value="Submit" />
-                </Form>
+
+                <TextInputRow label='Title' name="title" />
+                <TextInputRow label='Description' name="additional.description" />
+
+                <QuestionsBlock />
+
+                <button onClick={back}>Finish</button>
             </FormProvider>
         </EditTestForm>
     </ColumnContainer>

@@ -45,7 +45,8 @@ function Header() {
 }
 
 const Content = styled.div`
-    overflow-y: auto;
+  overflow-y: auto;
+  height: 100%;
 `;
 
 function App() {
