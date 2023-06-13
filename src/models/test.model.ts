@@ -8,11 +8,6 @@ interface BaseQuestion {
     type: QuestionType;
 }
 
-export interface QuestionsChoice {
-    id: number,
-    text: string;
-}
-
 interface FullTextQuestion extends BaseQuestion{
     type: 'text';
     multiline?: boolean;
@@ -28,8 +23,7 @@ export interface FullNumberQuestion extends BaseQuestion {
 export interface FullSelectQuestion extends BaseQuestion {
     type: 'select';
     multiple?: boolean; // for radio / checkboxes
-    other?: boolean;
-    choices: QuestionsChoice[];
+    options: string[];
     correctAnswers: number[];
 }
 

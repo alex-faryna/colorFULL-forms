@@ -3,7 +3,7 @@ import {useParams} from "react-router-dom";
 import {FormProvider, useController, useFieldArray, useForm, useFormContext, useWatch} from "react-hook-form";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import {Button, MenuItem, Select, Switch, TextField, Theme, ToggleButton, ToggleButtonGroup} from "@mui/material";
-import {Fragment, memo, useCallback, useState} from "react";
+import {Fragment, memo, useCallback, useEffect, useState} from "react";
 import {questionTypes, Test} from "../models/test.model";
 import {SxProps} from "@mui/system";
 import {TextFieldProps} from "@mui/material/TextField/TextField";
@@ -115,6 +115,7 @@ function TextQuestionBlock({ name }: { name: string }) {
     </Bordered>
 }
 
+// remove multiple answers from number question
 function NumberQuestionBlock({ name }: { name: string }) {
     const { field } = useController({ name: `${name}.integer`, defaultValue: true });
     const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({ name: `${name}.correctAnswers` });
@@ -137,14 +138,62 @@ function NumberQuestionBlock({ name }: { name: string }) {
                                                     }}
                 />)
             }
-            <button onClick={() => append(0)}>+</button>
+            <button onClick={() => append('')}>+</button>
         </ColumnContainer>
     </Bordered>
 }
 
-function SelectQuestionBlock() {
+function SelectQuestionBlock({ name }: { name: string }) {
+    const { field } = useController({ name: `${name}.multiple` });
+    const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({ name: `${name}.options` });
+    const correctAnswers = useFieldArray({ name: `${name}.correctAnswers` });
+    const correct: string[] = useFormContext().getValues(`${name}.correctAnswers`);
+
+    // console.log(correct);
+    console.log(`Render select block ${name}`);
+
+    const addAnswer = (value: string) => {
+        if (field.value) {
+            correctAnswers.append(value);
+        } else {
+            correctAnswers.remove();
+            correctAnswers.append(value);
+        }
+    }
+
+    useEffect(() => {
+        if (!field.value && correct?.length) {
+            const c = correct
+                .map(v => ({ value: v, idx: fields.findIndex(e => e.id === v) }))
+                .sort((a , b) => a.idx - b.idx);
+            correctAnswers.remove();
+            correctAnswers.append(c[0].value);
+        }
+    }, [field.value]);
+
+    // also when the multiple toggles we need to remove all besides 1
     return <Bordered>
-        Select
+        <RowCenter>
+            <span>Multiple: </span>
+            <Switch {...field} />
+        </RowCenter>
+        <p>Options:</p>
+        <ColumnContainer style={{ gap: '8px' }}>
+            {
+                fields.map((key, idx) => <RowCenter key={key.id} style={{ width: '100%', gap: '1rem' }}>
+                    <span>{ idx + 1 }</span>
+                    <TextInput name={`${name}.options.${idx}`} fullWidth />
+                    {
+                        correct.includes(key.id)
+                            ? <button onClick={() => correctAnswers.remove(correct.indexOf(key.id))}>-</button>
+                            : <button onClick={() => addAnswer(key.id)}>+</button>
+                    }
+                </RowCenter>)
+            }
+            {
+                fields.length < 5 && <button onClick={() => append('')}>+</button>
+            }
+        </ColumnContainer>
     </Bordered>
 }
 
@@ -180,8 +229,8 @@ const QuestionBlock = memo(function ({ name }: { name: string }) {
         {
             {
                 text: <TextQuestionBlock name={name} />,
-                number: <NumberQuestionBlock name={name}/>,
-                select: <SelectQuestionBlock />,
+                number: <NumberQuestionBlock name={name} />,
+                select: <SelectQuestionBlock name={name} />,
             }[field.value as string]
         }
     </QuestionCard>
