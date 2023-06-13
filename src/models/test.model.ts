@@ -1,15 +1,17 @@
 
+export const questionTypes = ['text', 'number', 'select'] as const;
+export type QuestionType = typeof questionTypes[number];
 
-export type QuestionTypes = 'text' | 'number' | 'select';
-// elect with possibility of ading new values
-// also list ? where you can add multiple values (kinda text but formatted better)
-
-export interface BaseQuestion {
-    title: string;
+interface BaseQuestion {
+    name: string;
     required?: boolean;
-    type: QuestionTypes;
+    type: QuestionType;
 }
 
+export interface QuestionsChoice {
+    id: number,
+    text: string;
+}
 
 interface FullTextQuestion extends BaseQuestion{
     type: 'text';
@@ -31,16 +33,12 @@ export interface FullSelectQuestion extends BaseQuestion {
     correctAnswers: number[];
 }
 
-export interface QuestionsChoice {
-    id: number,
-    text: string;
-}
-
 type FullQuestion = FullTextQuestion | FullNumberQuestion | FullSelectQuestion;
 export type Question<T extends boolean = false> = Omit<FullQuestion, T extends false ? 'correctAnswers' : ''>;
 
-
 export interface Test<T extends boolean = false> {
+    additional: any;
+
     id: string;
     title: string;
     withAnswers?: T; // if true, when we configure the test we add the answers, the answers are ALWAYS checked on the server

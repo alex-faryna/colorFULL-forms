@@ -2,8 +2,11 @@ import styled from "@emotion/styled";
 import {useParams} from "react-router-dom";
 import {FormProvider, useController, useFieldArray, useForm, useFormContext, useWatch} from "react-hook-form";
 import ButtonGroup from "@mui/material/ButtonGroup";
-import {Button, MenuItem, Select, TextField, ToggleButton, ToggleButtonGroup} from "@mui/material";
-import {memo} from "react";
+import {Button, MenuItem, Select, Switch, TextField, Theme, ToggleButton, ToggleButtonGroup} from "@mui/material";
+import {Fragment, memo, useState} from "react";
+import {questionTypes, Test} from "../models/test.model";
+import {SxProps} from "@mui/system";
+import {TextFieldProps} from "@mui/material/TextField/TextField";
 
 const ColumnContainer = styled.div`
   display: flex;
@@ -35,12 +38,11 @@ const Bold = styled.span`
   font-weight: 600;
 `;
 
-export function TextInput({ name, ...rest }: { name: string }) {
+export function TextInput({ name, ...rest }: { name: string } & TextFieldProps) {
     const { register } = useFormContext();
     // console.log(`Render input ${name}`);
-    return <TextField {...register(name)} variant="standard" />;
+    return <TextField {...register(name)} variant="standard" {...rest} />;
 }
-
 
 function Title() {
     const val = useWatch({ name: 'title' });
@@ -67,12 +69,70 @@ const Row = styled.div`
   align-items: flex-start;
 `;
 
+const RowCenter = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const Right = styled.div`
   margin-left: auto;
 `;
 
+const Bordered = styled.div`
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+`;
+
+function TextQuestionBlock({ name, withAnswers }: { name: string, withAnswers?: boolean }) {
+    const { field } = useController({ name: `${name}.multiline` });
+    const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({ name: `${name}.correctAnswers` });
+
+    if (!fields.length) {
+        append('');
+    }
+
+    console.log(`Render question block ${name}`);
+
+    return <Bordered>
+        <RowCenter>
+            <span>Multiline: </span>
+            <Switch {...field} />
+        </RowCenter>
+        <ColumnContainer style={{ gap: '8px' }}>
+            {
+                fields.map((key, idx) => <Fragment key={key.id}>
+                    {
+                        field.value
+                            ? <TextInput name={`${name}.correctAnswers.${idx}`} variant='outlined' fullWidth maxRows={6} minRows={3} multiline={field.value} />
+                            : <TextInput name={`${name}.correctAnswers.${idx}`} fullWidth />
+                    }
+                </Fragment>)
+            }
+            <button onClick={() => append('')}>+</button>
+        </ColumnContainer>
+    </Bordered>
+}
+
+function NumberQuestionBlock() {
+
+
+    return <Bordered>
+        Number
+    </Bordered>
+}
+
+function SelectQuestionBlock() {
+    return <Bordered>
+        Select
+    </Bordered>
+}
+
 const QuestionBlock = memo(function ({ name }: { name: string }) {
-    const { field } = useController({ name: `${name}.type` })
+    const { register } = useFormContext();
+    const { field } = useController({ name: `${name}.type` });
 
     console.log(`Render question ${name} ${field.value}`);
 
@@ -80,18 +140,20 @@ const QuestionBlock = memo(function ({ name }: { name: string }) {
         <Row>
             <TextInputRow label='Questions name:' name={`${name}.name`} />
             <Right>
+                <span>Required: </span>
+                <Switch {...register(`${name}.required`)} />
                 <Select className='type-select' variant='standard'{...field}>
-                    <MenuItem value='text'>Text</MenuItem>
-                    <MenuItem value='paragraph'>Paragraph</MenuItem>
-                    <MenuItem value='select'>Select</MenuItem>
+                    {
+                        questionTypes.map(type => <MenuItem key={type} value={type}>{type}</MenuItem>)
+                    }
                 </Select>
             </Right>
         </Row>
         {
             {
-                text: <span>Text</span>,
-                paragraph: <span>Paragraph</span>,
-                select: <span>Options</span>
+                text: <TextQuestionBlock name={name} />,
+                number: <NumberQuestionBlock />,
+                select: <SelectQuestionBlock />,
             }[field.value as string]
         }
     </QuestionCard>
@@ -108,13 +170,13 @@ function QuestionsBlock() {
         {
             fields.map((key, idx) => <QuestionBlock key={key.id} name={`questions.${idx}`} />)
         }
-        <button onClick={() => append({ type: 'text', name: 'aha' })}>+</button>
+        <button onClick={() => append({ type: 'text', name: '' })}>+</button>
     </ColumnContainer>
 }
 
 function EditTestPage() {
     const { testId } = useParams();
-    const form = useForm({ defaultValues: { title: '', questions: [], additional: { description: 'Lol' } } })
+    const form = useForm<Test<true>>({ defaultValues: { title: '', questions: [], additional: { description: 'Lol' } } })
 
     const back = (): void => {
         console.log(form.getValues());
