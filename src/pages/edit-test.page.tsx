@@ -144,12 +144,16 @@ function NumberQuestionBlock({ name }: { name: string }) {
 }
 
 function SelectQuestionBlock({ name }: { name: string }) {
-    const { field } = useController({ name: `${name}.multiple` });
+    const { getValues, setValue } = useFormContext();
+    const { field } = useController({ name: `${name}.multiple`, defaultValue: true });
     const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({ name: `${name}.options` });
     const correctAnswers = useFieldArray({ name: `${name}.correctAnswers` });
-    const correct: string[] = useFormContext().getValues(`${name}.correctAnswers`);
+    const correct: string[] = getValues(`${name}.correctAnswers`);
+    if (fields.length < 2) {
+        append(['Option 1', 'Option 2'].slice(0, 2 - fields.length));
+    }
 
-    // console.log(correct);
+    console.log(fields);
     console.log(`Render select block ${name}`);
 
     const addAnswer = (value: string) => {
@@ -171,16 +175,20 @@ function SelectQuestionBlock({ name }: { name: string }) {
         }
     }, [field.value]);
 
-    // also when the multiple toggles we need to remove all besides 1
+
+    // remove questions
+    // reorder options
+    // reorder questions
     return <Bordered>
         <RowCenter>
             <span>Multiple: </span>
-            <Switch {...field} />
+            <Switch {...field} checked={field.value} />
         </RowCenter>
         <p>Options:</p>
         <ColumnContainer style={{ gap: '8px' }}>
             {
                 fields.map((key, idx) => <RowCenter key={key.id} style={{ width: '100%', gap: '1rem' }}>
+                    <button disabled={fields.length < 3} onClick={() => remove(idx)}>-</button>
                     <span>{ idx + 1 }</span>
                     <TextInput name={`${name}.options.${idx}`} fullWidth />
                     {
