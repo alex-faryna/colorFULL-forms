@@ -149,6 +149,7 @@ function SelectQuestionBlock({ name }: { name: string }) {
     const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({ name: `${name}.options` });
     const correctAnswers = useFieldArray({ name: `${name}.correctAnswers` });
     const correct: string[] = getValues(`${name}.correctAnswers`);
+    const options = getValues(`${name}.options`);
     if (fields.length < 2) {
         append(['Option 1', 'Option 2'].slice(0, 2 - fields.length));
     }
@@ -166,9 +167,10 @@ function SelectQuestionBlock({ name }: { name: string }) {
     }
 
     useEffect(() => {
-        if (!field.value && correct?.length) {
+        if (!field.value && correct?.length > 1) {
+            console.log(correct);
             const c = correct
-                .map(v => ({ value: v, idx: fields.findIndex(e => e.id === v) }))
+                .map(v => ({ value: v, idx: options.findIndex((e: string) => e === v) }))
                 .sort((a , b) => a.idx - b.idx);
             correctAnswers.remove();
             correctAnswers.append(c[0].value);
@@ -192,9 +194,9 @@ function SelectQuestionBlock({ name }: { name: string }) {
                     <span>{ idx + 1 }</span>
                     <TextInput name={`${name}.options.${idx}`} fullWidth />
                     {
-                        correct.includes(key.id)
-                            ? <button onClick={() => correctAnswers.remove(correct.indexOf(key.id))}>-</button>
-                            : <button onClick={() => addAnswer(key.id)}>+</button>
+                        correct.includes(options[idx])
+                            ? <button onClick={() => correctAnswers.remove(correct.indexOf(options[idx]))}>-</button>
+                            : <button onClick={() => addAnswer(options[idx])}>+</button>
                     }
                 </RowCenter>)
             }
