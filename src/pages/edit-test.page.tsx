@@ -3,7 +3,7 @@ import {useParams} from "react-router-dom";
 import {FormProvider, useController, useFieldArray, useForm, useFormContext, useWatch} from "react-hook-form";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import {Button, MenuItem, Select, Switch, TextField, Theme, ToggleButton, ToggleButtonGroup} from "@mui/material";
-import {Fragment, memo, useState} from "react";
+import {Fragment, memo, useCallback, useState} from "react";
 import {questionTypes, Test} from "../models/test.model";
 import {SxProps} from "@mui/system";
 import {TextFieldProps} from "@mui/material/TextField/TextField";
@@ -38,7 +38,7 @@ const Bold = styled.span`
   font-weight: 600;
 `;
 
-export function TextInput({ name, ...rest }: { name: string } & TextFieldProps) {
+export function TextInput({ name, ...rest }: { name: string, step?: string } & TextFieldProps) {
     const { register } = useFormContext();
     // console.log(`Render input ${name}`);
     return <TextField {...register(name)} variant="standard" {...rest} />;
@@ -86,15 +86,20 @@ const Bordered = styled.div`
   width: 100%;
 `;
 
-function TextQuestionBlock({ name, withAnswers }: { name: string, withAnswers?: boolean }) {
+function TextQuestionBlock({ name }: { name: string }) {
     const { field } = useController({ name: `${name}.multiline` });
     const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({ name: `${name}.correctAnswers` });
 
-    if (!fields.length) {
-        append('');
-    }
-
     console.log(`Render question block ${name}`);
+
+    // make autofocus when adding answer to list
+    function answer(key: string, idx: number, multiline: boolean) {
+        return <Fragment key={key}>{
+            multiline
+                ? <TextInput name={`${name}.correctAnswers.${idx}`} variant='outlined' fullWidth maxRows={6} minRows={3} multiline={multiline} />
+                : <TextInput name={`${name}.correctAnswers.${idx}`} fullWidth />
+        }</Fragment>
+    }
 
     return <Bordered>
         <RowCenter>
@@ -103,24 +108,37 @@ function TextQuestionBlock({ name, withAnswers }: { name: string, withAnswers?: 
         </RowCenter>
         <ColumnContainer style={{ gap: '8px' }}>
             {
-                fields.map((key, idx) => <Fragment key={key.id}>
-                    {
-                        field.value
-                            ? <TextInput name={`${name}.correctAnswers.${idx}`} variant='outlined' fullWidth maxRows={6} minRows={3} multiline={field.value} />
-                            : <TextInput name={`${name}.correctAnswers.${idx}`} fullWidth />
-                    }
-                </Fragment>)
+                fields.map((key, idx) => answer(key.id, idx, field.value))
             }
             <button onClick={() => append('')}>+</button>
         </ColumnContainer>
     </Bordered>
 }
 
-function NumberQuestionBlock() {
+function NumberQuestionBlock({ name }: { name: string }) {
+    const { field } = useController({ name: `${name}.integer`, defaultValue: true });
+    const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({ name: `${name}.correctAnswers` });
 
+    console.log(`Render number block ${name}`);
 
     return <Bordered>
-        Number
+        <RowCenter>
+            <span>Integer: </span>
+            <Switch {...field} checked={field.value} />
+        </RowCenter>
+        <ColumnContainer style={{ gap: '8px' }}>
+            {
+                fields.map((key, idx) => <TextInput key={key.id} type='number'
+                                                    name={`${name}.correctAnswers.${idx}`} fullWidth
+                                                    InputProps={{
+                                                        inputProps: {
+                                                            step: 0.1
+                                                        }
+                                                    }}
+                />)
+            }
+            <button onClick={() => append(0)}>+</button>
+        </ColumnContainer>
     </Bordered>
 }
 
@@ -131,8 +149,18 @@ function SelectQuestionBlock() {
 }
 
 const QuestionBlock = memo(function ({ name }: { name: string }) {
-    const { register } = useFormContext();
+    const { register, setValue } = useFormContext();
     const { field } = useController({ name: `${name}.type` });
+
+    const typeChange = useCallback(function(...event: unknown[]) {
+        field.onChange(...event);
+        setValue(`${name}.correctAnswers`, []);
+        if ((event[0] as any).target.value === 'number') {
+            // console.log("??");
+            // we need a default question block value for each type so answers are cleared and selections too
+            // setValue(`${name}.integer`, true);
+        }
+    }, [field.onChange]);
 
     console.log(`Render question ${name} ${field.value}`);
 
@@ -142,7 +170,7 @@ const QuestionBlock = memo(function ({ name }: { name: string }) {
             <Right>
                 <span>Required: </span>
                 <Switch {...register(`${name}.required`)} />
-                <Select className='type-select' variant='standard'{...field}>
+                <Select className='type-select' variant='standard' {...field} onChange={typeChange} >
                     {
                         questionTypes.map(type => <MenuItem key={type} value={type}>{type}</MenuItem>)
                     }
@@ -152,7 +180,7 @@ const QuestionBlock = memo(function ({ name }: { name: string }) {
         {
             {
                 text: <TextQuestionBlock name={name} />,
-                number: <NumberQuestionBlock />,
+                number: <NumberQuestionBlock name={name}/>,
                 select: <SelectQuestionBlock />,
             }[field.value as string]
         }
@@ -179,7 +207,7 @@ function EditTestPage() {
     const form = useForm<Test<true>>({ defaultValues: { title: '', questions: [], additional: { description: 'Lol' } } })
 
     const back = (): void => {
-        console.log(form.getValues());
+        console.dir(form.getValues().questions);
     }
 
     console.log('Render page');
