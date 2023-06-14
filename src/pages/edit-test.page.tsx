@@ -88,7 +88,7 @@ const Bordered = styled.div`
 
 function TextQuestionBlock({ name }: { name: string }) {
     const { field } = useController({ name: `${name}.multiline` });
-    const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({ name: `${name}.correctAnswers` });
+    const { fields, append, move } = useFieldArray({ name: `${name}.correctAnswers` });
 
     console.log(`Render question block ${name}`);
 
@@ -110,7 +110,9 @@ function TextQuestionBlock({ name }: { name: string }) {
             {
                 fields.map((key, idx) => answer(key.id, idx, field.value))
             }
-            <button onClick={() => append('')}>+</button>
+            {
+                !!fields.length || <button onClick={() => append('')}>+</button>
+            }
         </ColumnContainer>
     </Bordered>
 }
@@ -118,7 +120,7 @@ function TextQuestionBlock({ name }: { name: string }) {
 // remove multiple answers from number question
 function NumberQuestionBlock({ name }: { name: string }) {
     const { field } = useController({ name: `${name}.integer`, defaultValue: true });
-    const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({ name: `${name}.correctAnswers` });
+    const { fields, append, move } = useFieldArray({ name: `${name}.correctAnswers` });
 
     console.log(`Render number block ${name}`);
 
@@ -138,7 +140,9 @@ function NumberQuestionBlock({ name }: { name: string }) {
                                                     }}
                 />)
             }
-            <button onClick={() => append('')}>+</button>
+            {
+                !!fields.length || <button onClick={() => append('')}>+</button>
+            }
         </ColumnContainer>
     </Bordered>
 }
@@ -244,7 +248,7 @@ const QuestionBlock = memo(function ({ name, rem }: { name: string, rem: () => v
 })
 
 function QuestionsBlock() {
-    const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({
+    const { fields, append, remove, move } = useFieldArray({
         name: 'questions',
         rules: { minLength: 1 }
     })
