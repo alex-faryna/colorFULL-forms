@@ -20,15 +20,14 @@ export interface FullNumberQuestion extends BaseQuestion {
     correctAnswers: number[];
 }
 
-export interface FullSelectQuestion extends BaseQuestion {
+export interface FullSelectQuestion<T extends boolean = false> extends BaseQuestion {
     type: 'select';
     multiple?: boolean; // for radio / checkboxes
-    options: string[];
-    correctAnswers: number[];
+    options: (T extends false ? { name: string } : { name: string, answer?: boolean })[];
 }
 
-type FullQuestion = FullTextQuestion | FullNumberQuestion | FullSelectQuestion;
-export type Question<T extends boolean = false> = Omit<FullQuestion, T extends false ? 'correctAnswers' : ''>;
+type FullQuestion<T extends boolean> = FullTextQuestion | FullNumberQuestion | FullSelectQuestion<T>;
+export type Question<T extends boolean = false> = Omit<FullQuestion<T>, T extends false ? 'correctAnswers' : ''>;
 
 export interface Test<T extends boolean = false> {
     additional: any;

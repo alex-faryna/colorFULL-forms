@@ -146,37 +146,34 @@ function NumberQuestionBlock({ name }: { name: string }) {
 function SelectQuestionBlock({ name }: { name: string }) {
     const { getValues, setValue } = useFormContext();
     const { field } = useController({ name: `${name}.multiple`, defaultValue: true });
-    const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({ name: `${name}.options` });
+    const { fields, append, prepend, remove, swap, move, insert, update } = useFieldArray({ name: `${name}.options` });
     const correctAnswers = useFieldArray({ name: `${name}.correctAnswers` });
     const correct: string[] = getValues(`${name}.correctAnswers`);
-    const options = getValues(`${name}.options`);
+    const options: { name: string, answer?: boolean }[] = getValues(`${name}.options`);
     if (fields.length < 2) {
-        append(['Option 1', 'Option 2'].slice(0, 2 - fields.length));
+        append([
+            { name: 'Option 1', answer: false },
+            { name: 'Option 2', answer: false }
+        ].slice(0, 2 - fields.length));
     }
 
     console.log(fields);
     console.log(`Render select block ${name}`);
 
-    const addAnswer = (value: string) => {
+    const addAnswer = (idx: number) => {
         if (field.value) {
-            correctAnswers.append(value);
+            update(idx,  { ...options[idx], answer: true});
         } else {
-            correctAnswers.remove();
-            correctAnswers.append(value);
+            setValue(`${name}.options`, options.map((opt, i) => ({ ...opt, answer: i === idx })));
         }
     }
 
     useEffect(() => {
-        if (!field.value && correct?.length > 1) {
-            console.log(correct);
-            const c = correct
-                .map(v => ({ value: v, idx: options.findIndex((e: string) => e === v) }))
-                .sort((a , b) => a.idx - b.idx);
-            correctAnswers.remove();
-            correctAnswers.append(c[0].value);
+        if (!field.value) {
+            const idx = options.findIndex(opt => opt?.answer);
+            setValue(`${name}.options`, options.map((opt, i) => ({ ...opt, answer: i === idx })));
         }
     }, [field.value]);
-
 
     // remove questions
     // reorder options
@@ -192,16 +189,16 @@ function SelectQuestionBlock({ name }: { name: string }) {
                 fields.map((key, idx) => <RowCenter key={key.id} style={{ width: '100%', gap: '1rem' }}>
                     <button disabled={fields.length < 3} onClick={() => remove(idx)}>-</button>
                     <span>{ idx + 1 }</span>
-                    <TextInput name={`${name}.options.${idx}`} fullWidth />
+                    <TextInput name={`${name}.options.${idx}.name`} fullWidth />
                     {
-                        correct.includes(options[idx])
-                            ? <button onClick={() => correctAnswers.remove(correct.indexOf(options[idx]))}>-</button>
-                            : <button onClick={() => addAnswer(options[idx])}>+</button>
+                        options[idx]?.answer
+                            ? <button onClick={() => update(idx,  { ...options[idx], answer: false})}>-</button>
+                            : <button onClick={() => addAnswer(idx)}>+</button>
                     }
                 </RowCenter>)
             }
             {
-                fields.length < 5 && <button onClick={() => append('')}>+</button>
+                fields.length < 5 && <button onClick={() => append({ name: '', answer: false })}>+</button>
             }
         </ColumnContainer>
     </Bordered>
