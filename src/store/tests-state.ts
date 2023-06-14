@@ -29,12 +29,12 @@ export const testsSlice = createSlice({
         stubDataLoaded: (state) => {
 
         },
-        taskCreated: (state, { payload }: PayloadAction<{ color: string }>) => {
+        testAdded: (state, { payload }: PayloadAction<{ color: string }>) => {
 
         },
     },
 });
 
-export const { setLoading, setLoadingError, stubDataLoaded, taskCreated } = testsSlice.actions;
+export const { setLoading, setLoadingError, stubDataLoaded, testAdded } = testsSlice.actions;
 
 export default testsSlice.reducer;

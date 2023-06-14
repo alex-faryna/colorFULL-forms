@@ -12,7 +12,7 @@ const ColumnContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%;
+  // height: 100%;
   align-items: center;
 `;
 
@@ -20,7 +20,7 @@ const EditTestForm = styled.div`
   max-width: 1000px;
   width: 50%;
   padding: 2rem;
-  height: 100%;
+  // height: 100%;
   overflow-y: auto;
   
   display: flex;
@@ -147,8 +147,6 @@ function SelectQuestionBlock({ name }: { name: string }) {
     const { getValues, setValue } = useFormContext();
     const { field } = useController({ name: `${name}.multiple`, defaultValue: true });
     const { fields, append, prepend, remove, swap, move, insert, update } = useFieldArray({ name: `${name}.options` });
-    const correctAnswers = useFieldArray({ name: `${name}.correctAnswers` });
-    const correct: string[] = getValues(`${name}.correctAnswers`);
     const options: { name: string, answer?: boolean }[] = getValues(`${name}.options`);
     if (fields.length < 2) {
         append([
@@ -157,25 +155,27 @@ function SelectQuestionBlock({ name }: { name: string }) {
         ].slice(0, 2 - fields.length));
     }
 
-    console.log(fields);
     console.log(`Render select block ${name}`);
+
+    const setOnlyAnswer = (idx: number) => {
+        setValue(`${name}.options`, options.map((opt, i) => ({ ...opt, answer: i === idx })));
+    }
 
     const addAnswer = (idx: number) => {
         if (field.value) {
             update(idx,  { ...options[idx], answer: true});
         } else {
-            setValue(`${name}.options`, options.map((opt, i) => ({ ...opt, answer: i === idx })));
+            setOnlyAnswer(idx);
         }
     }
 
     useEffect(() => {
         if (!field.value) {
             const idx = options.findIndex(opt => opt?.answer);
-            setValue(`${name}.options`, options.map((opt, i) => ({ ...opt, answer: i === idx })));
+            setOnlyAnswer(idx);
         }
     }, [field.value]);
 
-    // remove questions
     // reorder options
     // reorder questions
     return <Bordered>
@@ -254,13 +254,15 @@ function QuestionsBlock() {
         {
             fields.map((key, idx) => <QuestionBlock key={key.id} name={`questions.${idx}`} rem={() => remove(idx)} />)
         }
-        <button onClick={() => append({ type: 'text', name: '' })}>+</button>
+        {
+            fields.length < 10 && <button onClick={() => append({ type: 'text', name: '' })}>+</button>
+        }
     </ColumnContainer>
 }
 
 function EditTestPage() {
     const { testId } = useParams();
-    const form = useForm<Test<true>>({ defaultValues: { title: '', questions: [], additional: { description: 'Lol' } } })
+    const form = useForm<Test<true>>({ defaultValues: { title: '', questions: [] } });
 
     const back = (): void => {
         console.dir(form.getValues().questions);
@@ -275,10 +277,15 @@ function EditTestPage() {
 
                 <TextInputRow label='Title' name="title" />
                 <TextInputRow label='Description' name="additional.description" />
+                {
+                    // time to complete add
+                }
 
                 <QuestionsBlock />
 
-                <button onClick={back}>Finish</button>
+                <div>
+                    <button onClick={back}>Finish</button>
+                </div>
             </FormProvider>
         </EditTestForm>
     </ColumnContainer>
