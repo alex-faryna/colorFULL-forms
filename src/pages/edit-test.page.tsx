@@ -204,13 +204,12 @@ function SelectQuestionBlock({ name }: { name: string }) {
     </Bordered>
 }
 
-const QuestionBlock = memo(function ({ name }: { name: string }) {
+const QuestionBlock = memo(function ({ name, rem }: { name: string, rem: () => void }) {
     const { register, setValue } = useFormContext();
     const { field } = useController({ name: `${name}.type` });
 
     const typeChange = useCallback(function(...event: unknown[]) {
         field.onChange(...event);
-        setValue(`${name}.correctAnswers`, []);
         if ((event[0] as any).target.value === 'number') {
             // console.log("??");
             // we need a default question block value for each type so answers are cleared and selections too
@@ -231,6 +230,7 @@ const QuestionBlock = memo(function ({ name }: { name: string }) {
                         questionTypes.map(type => <MenuItem key={type} value={type}>{type}</MenuItem>)
                     }
                 </Select>
+                <button onClick={rem}>-</button>
             </Right>
         </Row>
         {
@@ -252,7 +252,7 @@ function QuestionsBlock() {
     console.log('Render questions block');
     return <ColumnContainer style={{ gap: '16px' }}>
         {
-            fields.map((key, idx) => <QuestionBlock key={key.id} name={`questions.${idx}`} />)
+            fields.map((key, idx) => <QuestionBlock key={key.id} name={`questions.${idx}`} rem={() => remove(idx)} />)
         }
         <button onClick={() => append({ type: 'text', name: '' })}>+</button>
     </ColumnContainer>
