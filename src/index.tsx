@@ -8,6 +8,9 @@ import store from './store/index';
 import {createBrowserRouter, createRoutesFromElements, redirect, Route, RouterProvider} from "react-router-dom";
 import TestsListPage from "./pages/tests-list.page";
 import EditTestPage from "./pages/edit-test.page";
+import {appService} from "./services/app.service";
+
+const app = appService;
 
 export class RoutesConfig {
     public static root = '/';

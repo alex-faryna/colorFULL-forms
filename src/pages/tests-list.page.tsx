@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
 import {Component, createRef, useRef} from "react";
 import {Link} from "react-router-dom";
-import {useInViewCallBack} from "../utils/in-view";
-import {createQuizButtonVisibilityService} from "../utils/create-quiz-button-visible.util";
+import {useInViewCallBack} from "../hooks/in-view";
+import {createQuizButtonVisibilityService} from "../services/create-quiz-button-visible.service";
 
 class FlipAnimated extends Component {
     private ref = createRef<HTMLElement>();

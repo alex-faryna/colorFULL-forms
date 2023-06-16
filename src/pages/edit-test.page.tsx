@@ -1,12 +1,11 @@
 import styled from "@emotion/styled";
 import {useParams} from "react-router-dom";
 import {FormProvider, useController, useFieldArray, useForm, useFormContext, useWatch} from "react-hook-form";
-import ButtonGroup from "@mui/material/ButtonGroup";
-import {Button, MenuItem, Select, Switch, TextField, Theme, ToggleButton, ToggleButtonGroup} from "@mui/material";
-import {Fragment, memo, useCallback, useEffect, useState} from "react";
-import {questionTypes, Test} from "../models/test.model";
-import {SxProps} from "@mui/system";
+import {MenuItem, Select, Switch, TextField} from "@mui/material";
+import {Fragment, memo, useCallback, useEffect} from "react";
+import {FullSelectQuestion, questionTypes, Test} from "../models/test.model";
 import {TextFieldProps} from "@mui/material/TextField/TextField";
+import axios from "axios";
 
 const ColumnContainer = styled.div`
   display: flex;
@@ -40,7 +39,6 @@ const Bold = styled.span`
 
 export function TextInput({ name, ...rest }: { name: string, step?: string } & TextFieldProps) {
     const { register } = useFormContext();
-    // console.log(`Render input ${name}`);
     return <TextField {...register(name)} variant="standard" {...rest} />;
 }
 
@@ -150,7 +148,7 @@ function NumberQuestionBlock({ name }: { name: string }) {
 function SelectQuestionBlock({ name }: { name: string }) {
     const { getValues, setValue } = useFormContext();
     const { field } = useController({ name: `${name}.multiple`, defaultValue: true });
-    const { fields, append, prepend, remove, swap, move, insert, update } = useFieldArray({ name: `${name}.options` });
+    const { fields, append, remove, move, update } = useFieldArray({ name: `${name}.options` });
     const options: { name: string, answer?: boolean }[] = getValues(`${name}.options`);
     if (fields.length < 2) {
         append([
@@ -269,24 +267,62 @@ function EditTestPage() {
     const form = useForm<Test<true>>({ defaultValues: { title: '', questions: [] } });
 
     const back = (): void => {
-        console.dir(form.getValues().questions);
+        console.dir(form.getValues());
     }
+
+    useEffect(() => {
+
+
+        axios.get('https://cxsdgwcrklvyzwo5nihbivt7f40xphan.lambda-url.eu-north-1.on.aws/')
+            .then(res => {
+                console.log(res);
+            })
+            .catch(console.log)
+            .finally(console.log);
+
+        // https://i2kqg7ldh4nykaxqveoxdanyia0rclzf.lambda-url.us-east-1.on.aws
+        /*try {
+            const xmlHttp = new XMLHttpRequest();
+            xmlHttp.open( "GET", 'https://i2kqg7ldh4nykaxqveoxdanyia0rclzf.lambda-url.us-east-1.on.aws', false ); // false for synchronous request
+            xmlHttp.send( null );
+            const d = xmlHttp.responseText;
+            console.log(d);
+        } catch (e) {
+            console.log(e);
+        }*/
+
+        // load by <p>Hello { testId }</p>
+        if (testId === '0') {
+        }
+        setTimeout(() => {
+            form.reset({
+                id: '0',
+                title: 'edit',
+                questions: [
+                    {
+                        type: "select",
+                        multiple: true,
+                        name: "",
+                        options: [{name: "Option 1", answer: false}, {name: "Option 2", answer: false}],
+                        required: false,
+                    } as FullSelectQuestion<true>,
+                ]
+            } as Test<true>)
+        }, 5000);
+    }, [testId]);
 
     console.log('Render page');
     return <ColumnContainer>
         <EditTestForm>
             <FormProvider {...form}>
-                <p>Hello { testId }</p>
                 <Title />
 
                 <TextInputRow label='Title' name="title" />
-                <TextInputRow label='Description' name="additional.description" />
+                <TextInputRow label='Description' name="description" />
                 {
                     // time to complete add
                 }
-
                 <QuestionsBlock />
-
                 <div>
                     <button onClick={back}>Finish</button>
                 </div>
