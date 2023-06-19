@@ -150,7 +150,7 @@ function AddQuizCard() {
 }
 
 function TestsListPage() {
-    const user = useAuthUser(globalInjector.authService);
+    const [user] = useAuthUser(globalInjector.authService);
     const [tests, setTests] = useState<Test[]>([]);
 
     useEffect(() => {

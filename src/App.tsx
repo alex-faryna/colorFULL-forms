@@ -61,51 +61,6 @@ function App() {
         // dispatch(setLoading());
     }, []);
 
-
-
-
-    useEffect(() => {
-
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const auth = getAuth();
-
-        /*signInWithEmailAndPassword(auth, 'sasha.faryna1234@gmail.com', 'lol12345')
-            .then((userCredential) => {
-                // Signed in
-                const user = userCredential.user;
-
-                console.log(user);
-                // ...
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-
-                console.log('err:');
-                console.log(error);
-            });*/
-
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // User is signed in, see docs for a list of available properties
-                // https://firebase.google.com/docs/reference/js/auth.user
-                const uid = user.uid;
-                // ...
-
-                console.log('---');
-                console.log(user);
-            } else {
-                // User is signed out
-                // ...
-
-                console.log('not logged');
-            }
-        });
-    }, []);
-
-
-
     console.log('render');
     return <>
         <Header />

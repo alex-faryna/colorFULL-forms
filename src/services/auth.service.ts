@@ -16,22 +16,8 @@ export default class AuthService {
         return onAuthStateChanged(this._auth, user => callback(user));
     }
 
-    signInWithEmail(email: string, password: string): void {
-        signInWithEmailAndPassword(this._auth, '', '')
-            .then((userCredential) => {
-                // Signed in
-                const user = userCredential.user;
-
-                console.log(user);
-                // ...
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-
-                console.log('err:');
-                console.log(error);
-            });
+    signInWithEmail(email: string, password: string) {
+        return signInWithEmailAndPassword(this._auth, email, password);
     }
 
     signOut(): Promise<void> {
