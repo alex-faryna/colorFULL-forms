@@ -4,6 +4,8 @@ import {Link} from "react-router-dom";
 import {useInViewCallBack} from "../hooks/in-view";
 import {createQuizButtonVisibilityService} from "../services/create-quiz-button-visible.service";
 import {globalInjector} from "../services/global-injector.service";
+import {onAuthStateChanged} from "firebase/auth";
+import useAuthUser from "../hooks/auth-user.hook";
 
 class FlipAnimated extends Component {
     private ref = createRef<HTMLElement>();
@@ -125,6 +127,7 @@ function AddQuizCard() {
 }
 
 function TestsListPage() {
+    const user = useAuthUser(globalInjector.authService);
     const grid = useRef<HTMLDivElement>(null);
 
     const tests = [
@@ -150,13 +153,14 @@ function TestsListPage() {
 
     useEffect(() => {
         console.log('ok')
-        setTimeout(() => {
-            globalInjector.db.testsList(0, 20, globalInjector.authService.user?.uid!).then(val => {
+
+        if (user) {
+            globalInjector.db.testsList(0, 20, user.uid).then(val => {
                 console.log(val.docs.map(doc => [doc.id, doc.data()]))
                 console.log('okay 22');
             }).catch(err => console.log(err));
-        }, 1500);
-    }, []);
+        }
+    }, [user]);
 
     return <ColumnContainer>
         <Grid ref={grid}>

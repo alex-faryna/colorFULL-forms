@@ -1,4 +1,4 @@
-import { Auth, getAuth, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
+import {Auth, getAuth, onAuthStateChanged, signInWithEmailAndPassword, User} from 'firebase/auth'
 import { FirebaseApp } from "firebase/app";
 
 export default class AuthService {
@@ -10,6 +10,10 @@ export default class AuthService {
 
     get user() {
         return this._auth.currentUser;
+    }
+
+    listenUser(callback: (value: User | null) => void) {
+        return onAuthStateChanged(this._auth, user => callback(user));
     }
 
     signInWithEmail(email: string, password: string): void {
