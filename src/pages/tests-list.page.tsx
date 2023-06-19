@@ -1,11 +1,12 @@
 import styled from "@emotion/styled";
-import {Component, createRef, useEffect, useRef} from "react";
+import {Component, createRef, useEffect, useRef, useState} from "react";
 import {Link} from "react-router-dom";
 import {useInViewCallBack} from "../hooks/in-view";
 import {createQuizButtonVisibilityService} from "../services/create-quiz-button-visible.service";
 import {globalInjector} from "../services/global-injector.service";
 import {onAuthStateChanged} from "firebase/auth";
 import useAuthUser from "../hooks/auth-user.hook";
+import {Test} from "../models/test.model";
 
 class FlipAnimated extends Component {
     private ref = createRef<HTMLElement>();
@@ -128,57 +129,21 @@ function AddQuizCard() {
 
 function TestsListPage() {
     const user = useAuthUser(globalInjector.authService);
-    const grid = useRef<HTMLDivElement>(null);
-
-    const tests = [
-        {
-            id: 0,
-            name: 'Test 1',
-        },
-        {
-            id: 1,
-            name: 'Test 1',
-        },
-        {
-            id: 2,
-            name: 'Test 1',
-        },{
-            id: 3,
-            name: 'Test 1',
-        },{
-            id: 4,
-            name: 'Test 1',
-        },
-    ]
+    const [tests, setTests] = useState<{ id: string, value: Test }[]>([]);
 
     useEffect(() => {
-        console.log('ok')
-
         if (user) {
             globalInjector.db.testsList(0, 20, user.uid).then(val => {
-                console.log(val.docs.map(doc => [doc.id, doc.data()]))
-                console.log('okay 22');
+                setTests(val.docs.map(doc => ({ id: doc.id, value: doc.data() as Test })));
             }).catch(err => console.log(err));
         }
     }, [user]);
 
     return <ColumnContainer>
-        <Grid ref={grid}>
+        <Grid>
             <AddQuizCard />
             {
-                tests.map(test => <TestCard key={test.id} name={test.name} />)
-            }
-            {
-                tests.map(test => <TestCard key={test.id} name={test.name} />)
-            }
-            {
-                tests.map(test => <TestCard key={test.id} name={test.name} />)
-            }
-            {
-                tests.map(test => <TestCard key={test.id} name={test.name} />)
-            }
-            {
-                tests.map(test => <TestCard key={test.id} name={test.name} />)
+                tests.map(test => <TestCard key={test.id} name={test.value.title} />)
             }
         </Grid>
     </ColumnContainer>
