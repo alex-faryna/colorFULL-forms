@@ -270,8 +270,9 @@ function EditTestPage() {
 
     const saveTest = (): void => {
         console.dir(form.getValues());
+        const test = form.getValues();
         const ret = globalInjector.db.createTest({
-            ...form.getValues(),
+            ...test,
             author: globalInjector.authService.user?.uid || '',
             createdAt: new Date(),
         });

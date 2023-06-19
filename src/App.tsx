@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {Link, Outlet} from "react-router-dom";
+import {Link, Outlet, useNavigate} from "react-router-dom";
 import styled from 'styled-components';
 import {RootState} from './store';
 import {createQuizButtonVisibilityService} from "./services/create-quiz-button-visible.service";
@@ -39,7 +39,9 @@ function Header() {
     const callback = () => createQuizButtonVisibilityService.updateVisibility(true);
 
     return <Row>
-        <span>Header</span>
+        <Link to='/'>
+            <span>Header</span>
+        </Link>
         { showCreate && <Right>
             <Link to='tests/0/edit' onClick={callback}>Create quiz</Link>
         </Right> }

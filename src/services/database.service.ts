@@ -14,7 +14,7 @@ import {
     Timestamp
 } from "firebase/firestore";
 import {FirebaseApp} from "firebase/app";
-import {Test} from "../models/test.model";
+import {ExtendedTest, Test} from "../models/test.model";
 
 export default class DatabaseService {
     private readonly _db: Firestore;
@@ -39,11 +39,11 @@ export default class DatabaseService {
                 ...doc.data(),
                 id: doc.id,
                 createdAt: (doc.data()['createdAt'] as Timestamp).toDate()
-            }) as Test;
+            }) as ExtendedTest;
         }));
     }
 
-    createTest(test: Test<true>): Promise<DocumentReference<DocumentData>> {
+    createTest(test: ExtendedTest<true>): Promise<DocumentReference<DocumentData>> {
         const collectionRef = collection(this.db, 'tests');
         return addDoc(collectionRef, test);
     }

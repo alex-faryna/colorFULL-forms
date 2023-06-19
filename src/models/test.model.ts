@@ -34,6 +34,9 @@ export interface Test<T extends boolean = false> {
     title: string;
     withAnswers?: T; // if true, when we configure the test we add the answers, the answers are ALWAYS checked on the server
     questions: Question<T>[];
+}
+
+export interface ExtendedTest<T extends boolean = false> extends Test<T> {
     author: string;
     createdAt: Date;
 }

@@ -88,6 +88,7 @@ const InnerCard = styled.div`
   padding: 1rem;
   border: 1px solid #ccc;
   border-radius: 4px;
+  position: relative;
 `;
 
 const Placeholder = styled.div`
@@ -107,11 +108,29 @@ const Placeholder = styled.div`
   }
 `;
 
+const Row = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  
+  & .right {
+    margin-left: auto;
+  }
+`;
 
 
-function TestCard({ name }: { name: string }) {
+
+function TestCard({ test }: { test: Test }) {
     return <Card>
-        <InnerCard>{ name }</InnerCard>
+        <InnerCard>
+            <Row>
+                <span>{ test.title }</span>
+                <Link  className='right' to={`${test.id}/edit`}>
+                    <span>Edit</span>
+                </Link>
+            </Row>
+            <p>{ (test.questions || []).length } Questions</p>
+        </InnerCard>
     </Card>
 }
 
@@ -134,9 +153,9 @@ function TestsListPage() {
 
     useEffect(() => {
         if (user) {
-            globalInjector.db.testsList(0, 20, user.uid).then(val => {
-                setTests(val);
-            }).catch(err => console.log(err));
+            globalInjector.db.testsList(0, 20, user.uid)
+                .then(val => setTests(val))
+                .catch(err => console.log(err));
         }
     }, [user]);
 
@@ -144,7 +163,7 @@ function TestsListPage() {
         <Grid>
             <AddQuizCard />
             {
-                tests.map(test => <TestCard key={test.id} name={`${test.title} ${test.createdAt}`} />)
+                tests.map(test => <TestCard key={test.id} test={test} />)
             }
         </Grid>
     </ColumnContainer>
