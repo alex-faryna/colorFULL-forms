@@ -57,13 +57,13 @@ function RequireAuth() {
         console.log("--");
 
         if (!path && location.pathname !== '/login') {
-            navigate('/login');
+            navigate('/login', { replace: true });
         }
     }, [location]);
 
     useEffect(() => {
         if (!path && !loading && !user) {
-            navigate('/login');
+            navigate('/login',{ replace: true });
         }
     }, [path, loading, user]);
 
@@ -76,7 +76,7 @@ function NoAuth() {
 
     useEffect(() => {
         if (user) {
-            navigate('/');
+            navigate('/', { replace: true });
         }
     }, [loading, user]);
 
