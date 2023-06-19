@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {FormProvider, useController, useFieldArray, useForm, useFormContext, useWatch} from "react-hook-form";
 import {MenuItem, Select, Switch, TextField} from "@mui/material";
 import {Fragment, memo, useCallback, useEffect} from "react";
@@ -264,6 +264,7 @@ function QuestionsBlock() {
 }
 
 function EditTestPage() {
+    const navigate = useNavigate();
     const { testId } = useParams();
     const form = useForm<Test<true>>({ defaultValues: { title: '', questions: [] } });
 
@@ -274,8 +275,10 @@ function EditTestPage() {
             author: globalInjector.authService.user?.uid || '',
             createdAt: new Date(),
         });
-        ret.then(console.log).catch(console.log);
-
+        ret.then(val => {
+            navigate('/');
+            console.log(val);
+        }).catch(console.log);
     }
 
     useEffect(() => {

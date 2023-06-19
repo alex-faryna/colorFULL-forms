@@ -7,6 +7,7 @@ import {globalInjector} from "../services/global-injector.service";
 import {onAuthStateChanged} from "firebase/auth";
 import useAuthUser from "../hooks/auth-user.hook";
 import {Test} from "../models/test.model";
+import { Timestamp } from 'firebase/firestore';
 
 class FlipAnimated extends Component {
     private ref = createRef<HTMLElement>();
@@ -129,12 +130,12 @@ function AddQuizCard() {
 
 function TestsListPage() {
     const user = useAuthUser(globalInjector.authService);
-    const [tests, setTests] = useState<{ id: string, value: Test }[]>([]);
+    const [tests, setTests] = useState<Test[]>([]);
 
     useEffect(() => {
         if (user) {
             globalInjector.db.testsList(0, 20, user.uid).then(val => {
-                setTests(val.docs.map(doc => ({ id: doc.id, value: doc.data() as Test })));
+                setTests(val);
             }).catch(err => console.log(err));
         }
     }, [user]);
@@ -143,7 +144,7 @@ function TestsListPage() {
         <Grid>
             <AddQuizCard />
             {
-                tests.map(test => <TestCard key={test.id} name={test.value.title} />)
+                tests.map(test => <TestCard key={test.id} name={`${test.title} ${test.createdAt}`} />)
             }
         </Grid>
     </ColumnContainer>

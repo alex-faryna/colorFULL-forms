@@ -1,4 +1,18 @@
-import { addDoc, collection, DocumentData, DocumentReference, Firestore, getFirestore, getDoc, where, query, getDocs, limit, orderBy } from "firebase/firestore";
+import {
+    addDoc,
+    collection,
+    DocumentData,
+    DocumentReference,
+    Firestore,
+    getFirestore,
+    getDoc,
+    where,
+    query,
+    getDocs,
+    limit,
+    orderBy,
+    Timestamp
+} from "firebase/firestore";
 import {FirebaseApp} from "firebase/app";
 import {Test} from "../models/test.model";
 
@@ -17,10 +31,16 @@ export default class DatabaseService {
         const docs = query(
             collection(this.db, "tests"),
             where("author", "==", author),
-            orderBy("createdAt"),
+            orderBy("createdAt", 'desc'),
             limit(count)
         );
-        return getDocs(docs);
+        return getDocs(docs).then(val => val.docs.map(doc => {
+            return ({
+                ...doc.data(),
+                id: doc.id,
+                createdAt: (doc.data()['createdAt'] as Timestamp).toDate()
+            }) as Test;
+        }));
     }
 
     createTest(test: Test<true>): Promise<DocumentReference<DocumentData>> {
