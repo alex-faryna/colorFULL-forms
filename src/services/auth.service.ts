@@ -8,7 +8,11 @@ export default class AuthService {
         this._auth = getAuth(app);
     }
 
-    signInWithEmail(email: string, password: string, ): void {
+    get user() {
+        return this._auth.currentUser;
+    }
+
+    signInWithEmail(email: string, password: string): void {
         signInWithEmailAndPassword(this._auth, '', '')
             .then((userCredential) => {
                 // Signed in
@@ -24,5 +28,9 @@ export default class AuthService {
                 console.log('err:');
                 console.log(error);
             });
+    }
+
+    signOut(): Promise<void> {
+        return this._auth.signOut();
     }
 }

@@ -67,7 +67,6 @@ function App() {
         // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const auth = getAuth();
 
-
         /*signInWithEmailAndPassword(auth, 'sasha.faryna1234@gmail.com', 'lol12345')
             .then((userCredential) => {
                 // Signed in

@@ -1,8 +1,9 @@
 import styled from "@emotion/styled";
-import {Component, createRef, useRef} from "react";
+import {Component, createRef, useEffect, useRef} from "react";
 import {Link} from "react-router-dom";
 import {useInViewCallBack} from "../hooks/in-view";
 import {createQuizButtonVisibilityService} from "../services/create-quiz-button-visible.service";
+import {globalInjector} from "../services/global-injector.service";
 
 class FlipAnimated extends Component {
     private ref = createRef<HTMLElement>();
@@ -147,6 +148,15 @@ function TestsListPage() {
         },
     ]
 
+    useEffect(() => {
+        console.log('ok')
+        setTimeout(() => {
+            globalInjector.db.testsList(0, 20, globalInjector.authService.user?.uid!).then(val => {
+                console.log(val.docs.map(doc => [doc.id, doc.data()]))
+                console.log('okay 22');
+            }).catch(err => console.log(err));
+        }, 1500);
+    }, []);
 
     return <ColumnContainer>
         <Grid ref={grid}>

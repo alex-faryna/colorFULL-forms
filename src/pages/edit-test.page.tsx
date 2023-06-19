@@ -6,6 +6,7 @@ import {Fragment, memo, useCallback, useEffect} from "react";
 import {FullSelectQuestion, questionTypes, Test} from "../models/test.model";
 import {TextFieldProps} from "@mui/material/TextField/TextField";
 import axios from "axios";
+import {globalInjector} from "../services/global-injector.service";
 
 const ColumnContainer = styled.div`
   display: flex;
@@ -266,8 +267,15 @@ function EditTestPage() {
     const { testId } = useParams();
     const form = useForm<Test<true>>({ defaultValues: { title: '', questions: [] } });
 
-    const back = (): void => {
+    const saveTest = (): void => {
         console.dir(form.getValues());
+        const ret = globalInjector.db.createTest({
+            ...form.getValues(),
+            author: globalInjector.authService.user?.uid || '',
+            createdAt: new Date(),
+        });
+        ret.then(console.log).catch(console.log);
+
     }
 
     useEffect(() => {
@@ -294,7 +302,7 @@ function EditTestPage() {
         // load by <p>Hello { testId }</p>
         if (testId === '0') {
         }
-        setTimeout(() => {
+        /*setTimeout(() => {
             form.reset({
                 id: '0',
                 title: 'edit',
@@ -308,7 +316,7 @@ function EditTestPage() {
                     } as FullSelectQuestion<true>,
                 ]
             } as Test<true>)
-        }, 5000);
+        }, 5000);*/
     }, [testId]);
 
     console.log('Render page');
@@ -324,7 +332,7 @@ function EditTestPage() {
                 }
                 <QuestionsBlock />
                 <div>
-                    <button onClick={back}>Finish</button>
+                    <button onClick={saveTest}>Finish</button>
                 </div>
             </FormProvider>
         </EditTestForm>
