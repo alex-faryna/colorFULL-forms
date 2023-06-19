@@ -8,11 +8,8 @@ import store from './store/index';
 import {createBrowserRouter, createRoutesFromElements, redirect, Route, RouterProvider} from "react-router-dom";
 import TestsListPage from "./pages/tests-list.page";
 import EditTestPage from "./pages/edit-test.page";
-import {appService} from "./services/app.service";
-import AuthService from "./services/auth.service";
 import {globalInjector} from "./services/global-injector.service";
-
-const injector = globalInjector;
+import TestPage from './pages/test.page';
 
 export class RoutesConfig {
     public static root = '/';
@@ -25,15 +22,6 @@ export class RoutesConfig {
 
 const redirectFn = (to: string) => () => redirect(to);
 
-
-function B() {
-    return <span>B</span>
-}
-function C() {
-    return <span>C</span>
-}
-
-
 // stats of test too (mb in test)
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -42,7 +30,7 @@ const router = createBrowserRouter(
             <Route path={RoutesConfig.edit} Component={EditTestPage}>
                 <Route path={RoutesConfig.any} loader={redirectFn("") }></Route>
             </Route>
-            <Route path={RoutesConfig.test} Component={B}>
+            <Route path={RoutesConfig.test} Component={TestPage}>
                 <Route path={RoutesConfig.any} loader={redirectFn("") }></Route>
             </Route>
             <Route path={RoutesConfig.root} loader={redirectFn(RoutesConfig.tests) } />

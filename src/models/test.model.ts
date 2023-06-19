@@ -2,21 +2,6 @@
 export const questionTypes = ['text', 'number', 'select'] as const;
 export type QuestionType = typeof questionTypes[number];
 
-
-export const keepFields = ['name', 'type', 'required'];
-export const typeSwitchValues = {
-    text: {
-        answer: false,
-        correctAnswers: [],
-    },
-    number: {
-
-    },
-    select: {
-
-    }
-}
-
 export const stripObj = (value: Record<string, unknown>): object => {
     const res: Record<string, unknown> = {};
     Object.keys(value).forEach(key => {
@@ -33,7 +18,7 @@ interface BaseQuestion {
     type: QuestionType;
 }
 
-interface FullTextQuestion extends BaseQuestion{
+export interface FullTextQuestion extends BaseQuestion{
     type: 'text';
     multiline?: boolean;
     correctAnswers: string[];
@@ -57,6 +42,7 @@ export type Question<T extends boolean = false> = Omit<FullQuestion<T>, T extend
 export interface Test<T extends boolean = false> {
     id: string;
     title: string;
+    description: string;
     withAnswers?: T; // if true, when we configure the test we add the answers, the answers are ALWAYS checked on the server
     questions: Question<T>[];
 }

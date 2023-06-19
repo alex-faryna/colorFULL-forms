@@ -112,20 +112,22 @@ const Row = styled.div`
   display: flex;
   align-items: center;
   width: 100%;
+  gap: 8px;
   
   & .right {
     margin-left: auto;
   }
 `;
 
-
-
 function TestCard({ test }: { test: Test }) {
     return <Card>
         <InnerCard>
             <Row>
                 <span>{ test.title }</span>
-                <Link  className='right' to={`${test.id}/edit`}>
+                <Link className='right' to={`${test.id}`}>
+                    <span>View</span>
+                </Link>
+                <Link to={`${test.id}/edit`}>
                     <span>Edit</span>
                 </Link>
             </Row>

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import {useNavigate, useParams} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import {FormProvider, useController, useFieldArray, useForm, useFormContext, useWatch} from "react-hook-form";
 import {MenuItem, Select, Switch, TextField} from "@mui/material";
 import {Fragment, memo, useCallback, useEffect} from "react";
@@ -302,10 +302,17 @@ function EditTestPage() {
     return <ColumnContainer>
         <EditTestForm>
             <FormProvider {...form}>
-                <Title />
+                <Row>
+                    <Title />
+                    <Right>
+                        <Link to='..' relative="path">
+                            <span>View</span>
+                        </Link>
+                    </Right>
+                </Row>
 
-                <TextInputRow label='Title' name="title" />
-                <TextInputRow label='Description' name="description" />
+                <TextInputRow label='Title' name='title' />
+                <TextInputRow label='Description' name='description' />
                 {
                     // time to complete add
                 }
