@@ -7,9 +7,11 @@ import {
     getFirestore,
     getDoc,
     where,
+    updateDoc,
     query,
     getDocs,
     limit,
+    doc,
     orderBy,
     Timestamp
 } from "firebase/firestore";
@@ -27,7 +29,7 @@ export default class DatabaseService {
         this._db = getFirestore(app);
     }
 
-    testsList(skip: number, count: number, author: string) {
+    getTestsList(skip: number, count: number, author: string) {
         const docs = query(
             collection(this.db, "tests"),
             where("author", "==", author),
@@ -41,6 +43,15 @@ export default class DatabaseService {
                 createdAt: (doc.data()['createdAt'] as Timestamp).toDate()
             }) as ExtendedTest;
         }));
+    }
+
+    getTest(id: string) {
+        return getDoc(doc(this.db, `tests/${id}`));
+    }
+
+    updateTest(test: ExtendedTest<true>) {
+        const q = doc(this.db, 'tests', test.id);
+        return updateDoc(q, { ...test });
     }
 
     createTest(test: ExtendedTest<true>): Promise<DocumentReference<DocumentData>> {

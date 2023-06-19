@@ -153,7 +153,7 @@ function TestsListPage() {
 
     useEffect(() => {
         if (user) {
-            globalInjector.db.testsList(0, 20, user.uid)
+            globalInjector.db.getTestsList(0, 20, user.uid)
                 .then(val => setTests(val))
                 .catch(err => console.log(err));
         }

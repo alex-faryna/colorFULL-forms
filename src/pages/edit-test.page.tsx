@@ -3,7 +3,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {FormProvider, useController, useFieldArray, useForm, useFormContext, useWatch} from "react-hook-form";
 import {MenuItem, Select, Switch, TextField} from "@mui/material";
 import {Fragment, memo, useCallback, useEffect} from "react";
-import {FullSelectQuestion, questionTypes, Test} from "../models/test.model";
+import {FullSelectQuestion, questionTypes, stripObj, Test} from "../models/test.model";
 import {TextFieldProps} from "@mui/material/TextField/TextField";
 import axios from "axios";
 import {globalInjector} from "../services/global-injector.service";
@@ -208,16 +208,17 @@ function SelectQuestionBlock({ name }: { name: string }) {
 }
 
 const QuestionBlock = memo(function ({ name, rem }: { name: string, rem: () => void }) {
-    const { register, setValue } = useFormContext();
+    const { register, getValues, setValue } = useFormContext();
     const { field } = useController({ name: `${name}.type` });
 
     const typeChange = useCallback(function(...event: unknown[]) {
         field.onChange(...event);
-        if ((event[0] as any).target.value === 'number') {
-            // console.log("??");
-            // we need a default question block value for each type so answers are cleared and selections too
-            // setValue(`${name}.integer`, true);
-        }
+        const val = getValues(name);
+        setValue(name, {
+            name: val.name,
+            type: val.type,
+            ...(val.required !== null && val.requied !== undefined && { required: val.required }),
+        });
     }, [field.onChange]);
 
     console.log(`Render question ${name} ${field.value}`);
@@ -269,13 +270,18 @@ function EditTestPage() {
     const form = useForm<Test<true>>({ defaultValues: { title: '', questions: [] } });
 
     const saveTest = (): void => {
-        console.dir(form.getValues());
+        console.dir(form.getValues().questions);
         const test = form.getValues();
-        const ret = globalInjector.db.createTest({
+        const fullTest = {
             ...test,
             author: globalInjector.authService.user?.uid || '',
             createdAt: new Date(),
-        });
+        };
+
+        console.log(fullTest);
+        const ret = testId
+            ? globalInjector.db.updateTest({ ...fullTest, id: testId })
+            : globalInjector.db.createTest(fullTest);
         ret.then(val => {
             navigate('/');
             console.log(val);
@@ -283,44 +289,13 @@ function EditTestPage() {
     }
 
     useEffect(() => {
+        if (testId) {
+            globalInjector.db.getTest(testId)
+                .then(test => form.reset(test.data()))
+                .catch(console.log);
 
-
-        axios.get('https://cxsdgwcrklvyzwo5nihbivt7f40xphan.lambda-url.eu-north-1.on.aws/')
-            .then(res => {
-                console.log(res);
-            })
-            .catch(console.log)
-            .finally(console.log);
-
-        // https://i2kqg7ldh4nykaxqveoxdanyia0rclzf.lambda-url.us-east-1.on.aws
-        /*try {
-            const xmlHttp = new XMLHttpRequest();
-            xmlHttp.open( "GET", 'https://i2kqg7ldh4nykaxqveoxdanyia0rclzf.lambda-url.us-east-1.on.aws', false ); // false for synchronous request
-            xmlHttp.send( null );
-            const d = xmlHttp.responseText;
-            console.log(d);
-        } catch (e) {
-            console.log(e);
-        }*/
-
-        // load by <p>Hello { testId }</p>
-        if (testId === '0') {
+            // later make everyhting go through redux store so we avoid retreiving everything if w navigate from the strt screen
         }
-        /*setTimeout(() => {
-            form.reset({
-                id: '0',
-                title: 'edit',
-                questions: [
-                    {
-                        type: "select",
-                        multiple: true,
-                        name: "",
-                        options: [{name: "Option 1", answer: false}, {name: "Option 2", answer: false}],
-                        required: false,
-                    } as FullSelectQuestion<true>,
-                ]
-            } as Test<true>)
-        }, 5000);*/
     }, [testId]);
 
     console.log('Render page');
