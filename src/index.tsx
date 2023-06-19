@@ -10,7 +10,7 @@ import {
     createRoutesFromElements,
     redirect,
     Route,
-    RouterProvider, Routes, useNavigate
+    RouterProvider, Routes, useLocation, useMatch, useNavigate
 } from "react-router-dom";
 import TestsListPage from "./pages/tests-list.page";
 import EditTestPage from "./pages/edit-test.page";
@@ -41,14 +41,31 @@ globalInjector.authService.listenUser(user => {
 
 
 function RequireAuth() {
+    // also check on route change
     const [user, loading] = useAuthUser(globalInjector.authService);
+    const path = useMatch(RoutesConfig.test);
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
-        if (!loading && !user) {
+        console.log(location);
+        const p = location.pathname;
+        // if (p.startsWith())
+
+        console.log("path;:");
+        console.log(path);
+        console.log("--");
+
+        if (!path && location.pathname !== '/login') {
             navigate('/login');
         }
-    }, [loading, user]);
+    }, [location]);
+
+    useEffect(() => {
+        if (!path && !loading && !user) {
+            navigate('/login');
+        }
+    }, [path, loading, user]);
 
     return <App />
 }
