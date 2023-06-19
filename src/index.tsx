@@ -9,8 +9,10 @@ import {createBrowserRouter, createRoutesFromElements, redirect, Route, RouterPr
 import TestsListPage from "./pages/tests-list.page";
 import EditTestPage from "./pages/edit-test.page";
 import {appService} from "./services/app.service";
+import AuthService from "./services/auth.service";
+import {globalInjector} from "./services/global-injector.service";
 
-const app = appService;
+const injector = globalInjector;
 
 export class RoutesConfig {
     public static root = '/';

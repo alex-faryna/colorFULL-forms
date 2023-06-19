@@ -1,21 +1,28 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
+import { Auth, getAuth, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
+import { FirebaseApp } from "firebase/app";
 
+export default class AuthService {
+    private _auth: Auth;
 
-
-class AuthService {
-
-
-
-    private _callback: Function = () => { }
-
-    public init(callback: (val: boolean) => void): void {
-        this._callback = callback;
+    constructor(app: FirebaseApp) {
+        this._auth = getAuth(app);
     }
 
-    public updateVisibility(val: boolean): void {
-        this._callback(val);
+    signInWithEmail(email: string, password: string, ): void {
+        signInWithEmailAndPassword(this._auth, '', '')
+            .then((userCredential) => {
+                // Signed in
+                const user = userCredential.user;
+
+                console.log(user);
+                // ...
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+
+                console.log('err:');
+                console.log(error);
+            });
     }
 }
-
-export const authService = new AuthService();
