@@ -46,11 +46,11 @@ function RequireAuth() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!path && !user) {
+        if (!path && !loading && !user) {
             console.log("HERE 2");
             navigate('/login',{ replace: true });
         }
-    }, [path, user]);
+    }, [path, loading, user]);
 
     return <App loadingUser={loading}/>
 }

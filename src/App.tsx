@@ -67,7 +67,7 @@ function App({ loadingUser = false }: { loadingUser?: boolean }) {
         <Header />
         <Content>
             {
-                loadingUser && {
+                !loadingUser && {
                     loading: <span>Loading</span>,
                     error: <span>Error</span>,
                     idle: <Outlet />
