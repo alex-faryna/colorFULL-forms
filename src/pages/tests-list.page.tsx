@@ -137,13 +137,19 @@ function TestsListPage() {
     }, [user]);
 
 
+    const inView = (val: boolean) => {
+        console.log(val);
+    }
+
     return <ColumnContainer>
         <Grid>
             <AddQuizCard />
             {
                 tests.map(test => <TestCard key={test.id} test={test} />)
             }
-            <LastItem callback={() => {}}/>
+            {
+                !!tests.length && <LastItem callback={inView}/>
+            }
         </Grid>
     </ColumnContainer>
 }
