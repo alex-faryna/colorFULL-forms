@@ -125,20 +125,28 @@ function TestsListPage() {
     const [tests, setTests] = useState<Test[]>([]);
     const lastTest = useRef<QueryDocumentSnapshot>();
 
-    useEffect(() => {
+    const load = () => {
         if (user) {
-            globalInjector.db.getTestsList(10, user.uid, lastTest.current)
+            console.log('load');
+            globalInjector.db.getTestsList(5, user.uid, lastTest.current)
                 .then(([val, last]) => {
-                    setTests(val);
                     lastTest.current = last;
+                    setTests(t => [...t, ...val]);
                 })
                 .catch(err => console.log(err));
         }
+    }
+
+    useEffect(() => {
+        load();
     }, [user]);
 
 
     const inView = (val: boolean) => {
         console.log(val);
+        if (val) {
+            load();
+        }
     }
 
     return <ColumnContainer>
