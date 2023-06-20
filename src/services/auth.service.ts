@@ -2,11 +2,12 @@ import {Auth, getAuth, onAuthStateChanged, signInWithEmailAndPassword, User} fro
 import { FirebaseApp } from "firebase/app";
 
 export default class AuthService {
-    private _key = '';
+    private _key: string;
     private _auth: Auth;
 
     constructor(app: FirebaseApp) {
         this._auth = getAuth(app);
+        this._key = '';
     }
 
     get user() {
