@@ -20,6 +20,7 @@ import {
 } from "firebase/firestore";
 import {FirebaseApp} from "firebase/app";
 import {ExtendedTest, Test} from "../models/test.model";
+import {decodeTest} from "../utils/secure.utils";
 
 export default class DatabaseService {
     private readonly _db: Firestore;
@@ -42,18 +43,18 @@ export default class DatabaseService {
         );
         return getDocs(docs).then(val => [
             val.docs.map(doc => {
-                return ({
-                    ...doc.data(),
+                return (decodeTest({
+                    ...doc.data() as ExtendedTest,
                     id: doc.id,
                     createdAt: (doc.data()['createdAt'] as Timestamp).toDate(),
-                }) as ExtendedTest;
+                })) as ExtendedTest;
             }),
             val.docs[val.docs.length - 1]
         ]);
     }
 
     getTest(id: string) {
-        return getDoc(doc(this.db, `tests/${id}`));
+        return getDoc(doc(this.db, `tests/${id}`)).then(test => decodeTest(test.data() as ExtendedTest));
     }
 
     updateTest(test: ExtendedTest<true>) {

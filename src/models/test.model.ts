@@ -37,6 +37,7 @@ export interface FullSelectQuestion<T extends boolean = false> extends BaseQuest
 }
 
 export interface EncodedFullSelectQuestion extends BaseQuestion {
+    type: 'select';
     multiple: string;
     options: { name: string, answer: string }[];
 }

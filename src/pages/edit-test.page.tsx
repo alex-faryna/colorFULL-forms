@@ -111,7 +111,8 @@ function TextQuestionBlock({ name }: { name: string }) {
                 fields.map((key, idx) => answer(key.id, idx, field.value))
             }
             {
-                !!fields.length || <button onClick={() => append('')}>+</button>
+                // survey mode only rn
+                // !!fields.length || <button onClick={() => append('')}>+</button>
             }
         </ColumnContainer>
     </Bordered>
@@ -141,7 +142,7 @@ function NumberQuestionBlock({ name }: { name: string }) {
                 />)
             }
             {
-                !!fields.length || <button onClick={() => append('')}>+</button>
+                // !!fields.length || <button onClick={() => append('')}>+</button>
             }
         </ColumnContainer>
     </Bordered>
@@ -195,9 +196,9 @@ function SelectQuestionBlock({ name }: { name: string }) {
                     <span>{ idx + 1 }</span>
                     <TextInput name={`${name}.options.${idx}.name`} fullWidth />
                     {
-                        options[idx]?.answer
+                        /*options[idx]?.answer
                             ? <button onClick={() => update(idx,  { ...options[idx], answer: false})}>-</button>
-                            : <button onClick={() => addAnswer(idx)}>+</button>
+                            : <button onClick={() => addAnswer(idx)}>+</button>*/
                     }
                 </RowCenter>)
             }
@@ -219,6 +220,7 @@ const QuestionBlock = memo(function ({ name, rem }: { name: string, rem: () => v
             name: val.name,
             type: val.type,
             ...(val.required !== null && val.requied !== undefined && { required: val.required }),
+            ...(val.type === 'text' && { multiline: false })
         });
     }, [field.onChange]);
 
@@ -260,7 +262,7 @@ function QuestionsBlock() {
             fields.map((key, idx) => <QuestionBlock key={key.id} name={`questions.${idx}`} rem={() => remove(idx)} />)
         }
         {
-            fields.length < 10 && <button onClick={() => append({ type: 'text', name: '' })}>+</button>
+            fields.length < 10 && <button onClick={() => append({ type: 'text', name: '', multiline: false })}>+</button>
         }
     </ColumnContainer>
 }
@@ -292,7 +294,7 @@ function EditTestPage() {
     useEffect(() => {
         if (testId) {
             globalInjector.db.getTest(testId)
-                .then(test => form.reset(test.data()))
+                .then(test => form.reset(test as Test<true>))
                 .catch(console.log);
 
             // later make everyhting go through redux store so we avoid retreiving everything if w navigate from the strt screen

@@ -9,7 +9,7 @@ import {
     Test
 } from "../models/test.model";
 import {globalInjector} from "../services/global-injector.service";
-import {Fragment, memo, useCallback, useEffect, useState} from "react";
+import {createContext, Fragment, memo, useCallback, useContext, useEffect, useRef, useState} from "react";
 import styled from "@emotion/styled";
 import {MenuItem, Select, Switch, TextField} from "@mui/material";
 import {TextInput} from "./edit-test.page";
@@ -79,17 +79,25 @@ const Option = styled.div`
   }
 `;
 
-function TextQuestionBlock({ question }: { question: FullTextQuestion }) {
+const TestContext = createContext<(idx: number, value: unknown) => void>(() => { });
+
+function TextQuestionBlock({ question, idx }: { question: FullTextQuestion, idx: number }) {
+    const changeFn = useContext(TestContext);
+
     return <ColumnContainer style={{ gap: '8px' }}>
         {
             question.multiline
-                ? <TextField variant='outlined' fullWidth maxRows={6} minRows={3} multiline={true} />
-                : <TextField fullWidth />
+                ? <TextField variant='outlined' fullWidth maxRows={6} minRows={3} multiline={true}
+                             onChange={(val) => changeFn(idx, val.target.value)} />
+                : <TextField variant='standard' fullWidth
+                             onChange={(val) => changeFn(idx, val.target.value)} />
         }
     </ColumnContainer>
 }
 
-function NumberQuestionBlock({ question }: { question: FullNumberQuestion }) {
+function NumberQuestionBlock({ question, idx }: { question: FullNumberQuestion, idx: number }) {
+    const changeFn = useContext(TestContext);
+
     return <ColumnContainer style={{ gap: '8px' }}>
         <TextField type='number'
                    fullWidth
@@ -98,18 +106,20 @@ function NumberQuestionBlock({ question }: { question: FullNumberQuestion }) {
                            step: 0.1
                        }
                    }}
+                   onChange={(val) => changeFn(idx, val.target.value)}
         />
     </ColumnContainer>
 }
 
 
-function SelectQuestionBlock({ question }: { question: FullSelectQuestion }) {
-
+function SelectQuestionBlock({ question, idx }: { question: FullSelectQuestion, idx: number }) {
+    const changeFn = useContext(TestContext);
     const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
 
     const setOption = (val: number) => {
         if (!question.multiple)  {
             setSelectedOptions([val]);
+            changeFn(idx, [val]);
             return;
         }
 
@@ -118,6 +128,11 @@ function SelectQuestionBlock({ question }: { question: FullSelectQuestion }) {
             set.delete(val);
         }
         const res = [...set];
+
+        console.log(res);
+        console.log(idx);
+
+        changeFn(idx, res);
         setSelectedOptions(res);
     }
 
@@ -133,16 +148,16 @@ function SelectQuestionBlock({ question }: { question: FullSelectQuestion }) {
     </ColumnContainer>
 }
 
-const QuestionBlock = memo(function ({ question }: { question: Question<true> }) {
+const QuestionBlock = memo(function ({ question, idx }: { question: Question<true>, idx: number }) {
 
     return <QuestionCard>
         <Title>{ question.name }</Title>
         <Row>
             {
                 {
-                    text: <TextQuestionBlock question={question as FullTextQuestion} />,
-                    number: <NumberQuestionBlock question={question as FullNumberQuestion} />,
-                    select: <SelectQuestionBlock question={question as FullSelectQuestion} />,
+                    text: <TextQuestionBlock idx={idx} question={question as FullTextQuestion} />,
+                    number: <NumberQuestionBlock idx={idx} question={question as FullNumberQuestion} />,
+                    select: <SelectQuestionBlock idx={idx} question={question as FullSelectQuestion} />,
                 }[question.type]
             }
         </Row>
@@ -153,7 +168,7 @@ const QuestionBlock = memo(function ({ question }: { question: Question<true> })
 function QuestionsBlock({ questions }: { questions: Question<true>[] }) {
     return <ColumnContainer style={{ gap: '16px' }}>
         {
-            questions.map((question, idx) => <QuestionBlock key={idx} question={question}/>)
+            questions.map((question, idx) => <QuestionBlock key={idx} idx={idx} question={question}/>)
         }
     </ColumnContainer>
 }
@@ -163,34 +178,23 @@ export default function TestPage() {
     const navigate = useNavigate();
     const { testId } = useParams();
     const [test, setTest] = useState<Test<true>>();
-    const form = useForm<Test<true>>({ defaultValues: { title: '', questions: [] } });
-
-    /*const saveTest = (): void => {
-        console.dir(form.getValues().questions);
-        const test = form.getValues();
-        const fullTest = {
-            ...test,
-            author: globalInjector.authService.user?.uid || '',
-            createdAt: new Date(),
-        };
-
-        console.log(fullTest);
-        const ret = testId
-            ? globalInjector.db.updateTest({ ...fullTest, id: testId })
-            : globalInjector.db.createTest(fullTest);
-        ret.then(val => {
-            navigate('/');
-            console.log(val);
-        }).catch(console.log);
-    }*/
+    const answers = useRef<Record<string, unknown>>({});
 
     useEffect(() => {
         if (testId) {
             globalInjector.db.getTest(testId)
-                .then(test => setTest(test.data() as Test<true>)) //form.reset(test.data())
+                .then(test => setTest(test as Test<true>))
                 .catch(console.log);
         }
     }, [testId]);
+
+    const submit = () => {
+        console.log(test);
+        console.log(answers.current);
+
+        // const correctAnswers =
+
+    }
 
     if (!test) {
         return <ColumnContainer>
@@ -202,7 +206,7 @@ export default function TestPage() {
 
     return <ColumnContainer>
         <EditTestForm>
-            <FormProvider {...form}>
+            <TestContext.Provider value={(idx, value) => answers.current[idx] = value}>
                 <Row>
                     <Title>{ test.title }</Title>
                     <Right>
@@ -214,9 +218,9 @@ export default function TestPage() {
                 <p>{ test.description }</p>
                 <QuestionsBlock questions={test.questions}/>
                 <div>
-                    <button>Finish</button>
+                    <button onClick={submit}>Submit</button>
                 </div>
-            </FormProvider>
+            </TestContext.Provider>
         </EditTestForm>
     </ColumnContainer>
 }
