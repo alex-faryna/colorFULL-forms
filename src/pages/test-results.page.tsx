@@ -1,6 +1,6 @@
 import {Link, useNavigate, useParams} from "react-router-dom";
-import {useEffect, useRef, useState} from "react";
-import {Test} from "../models/test.model";
+import {Fragment, useEffect, useRef, useState} from "react";
+import {ExtendedTest, FullSelectQuestion, Test} from "../models/test.model";
 import {globalInjector} from "../services/global-injector.service";
 import {encode} from "../utils/secure.utils";
 import {TextField} from "@mui/material";
@@ -28,15 +28,58 @@ const EditTestForm = styled.div`
   gap: 16px;
 `;
 
+const ResultCard = styled.div`
+  border-radius: 6px;
+  width: 100%;
+  border: 1px solid #ccc;
+  padding: 1rem;
+`;
+
+const Tag = styled.span`
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  background: rgba(161, 253, 238, 0.6);
+  padding: 4px 8px;
+`;
+
+function Result({ result, test }: { test: ExtendedTest<true>, result: { id: string, answers: string[] } & Record<string, unknown> }) {
+    return <ResultCard>
+        <p>{ result['email'] as string }</p>
+        <br/>
+        {
+            test.questions.map((question, idx) => <div style={{ marginBottom: '10px' }} key={idx}>
+                <span style={{ width: '100%', fontWeight: 'bold' }}>
+                    { question.name }:
+                </span>
+                <br/>
+                <span>
+                    { (result.answers[idx] && question.type === 'select')
+                        ? result.answers[idx].split('|').map(val => <Tag key={val}>{
+                            (question as FullSelectQuestion).options[+val].name
+                        }</Tag>)
+                        : result.answers[idx] }
+                </span>
+            </div>)
+        }
+    </ResultCard>
+}
 
 export default function TestResultsPage() {
     const { testId } = useParams();
-    const lastTest = useRef<QueryDocumentSnapshot>();
+    const [results, setResults] = useState<({ id: string, answers: string[] } & Record<string, unknown>)[]>([]);
+    const lastResult = useRef<QueryDocumentSnapshot>();
+    const [test, setTest] = useState<ExtendedTest<true> | null>(null);
 
     useEffect(() => {
         if (testId) {
-            globalInjector.db.getStats(25, testId, lastTest.current)
-                .then(test => console.log(test))
+            globalInjector.db.getTest(testId)
+                .then(val => setTest(val as ExtendedTest<true>))
+                .catch(console.log);
+            globalInjector.db.getStats(25, testId, lastResult.current)
+                .then(([val, last]) => {
+                    lastResult.current = last;
+                    setResults(res => [...res, ...val as { id: string, answers: string[] }[]]);
+                })
                 .catch(console.log);
         }
     }, [testId]);
@@ -44,23 +87,9 @@ export default function TestResultsPage() {
     return <ColumnContainer>
         <EditTestForm>
             <p>Results:</p>
-            { /*<TestContext.Provider value={(idx, value) => answers.current.answers[idx] = value}>
-                <Row>
-                    <Title>{ test.title }</Title>
-                    <Right>
-                        <Link to='edit'>
-                            <span>Edit</span>
-                        </Link>
-                    </Right>
-                </Row>
-                <p>{ test.description }</p>
-                <p>Enter email:</p>
-                <TextField variant='standard' fullWidth onChange={val => answers.current.email = val.target.value} />
-                <QuestionsBlock questions={test.questions}/>
-                <div>
-                    <button onClick={submit}>Submit</button>
-                </div>
-            </TestContext.Provider> */ }
+            {
+                !!test && results.map(result => <Result key={result.id} result={result} test={test}/>)
+            }
         </EditTestForm>
     </ColumnContainer>
 }

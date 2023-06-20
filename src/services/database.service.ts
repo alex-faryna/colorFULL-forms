@@ -54,7 +54,7 @@ export default class DatabaseService {
         ]);
     }
 
-    getStats(count: number, testId: string, skip: unknown = null) {
+    getStats(count: number, testId: string, skip: unknown = null): Promise<[Record<string, unknown>[], QueryDocumentSnapshot]> {
         const docs = query(
             collection(this.db, "results"),
             ...[where("testId", "==", testId),

@@ -51,10 +51,6 @@ export function encodeTest(test: ExtendedTest<true>): ExtendedTest<true> {
     }
 }
 
-
-
-
-
 export function decodeQuestionAnswers(question: FullTextQuestion): FullTextQuestion {
     const answers = question.correctAnswers;
     if (!answers.length) {
@@ -73,7 +69,6 @@ export function decodeSelectQuestion(question: EncodedFullSelectQuestion): FullS
         options: question.options.map(option => ({ ...option, answer: decode(option.answer, globalInjector.authService.key) === 'true' })),
     }
 }
-
 
 export function decodeQuestion(question: Question<true>): Question<true> {
     if (question.type === 'select') {
