@@ -193,21 +193,23 @@ export default function TestPage() {
     }, [testId]);
 
     const submit = () => {
-        console.log(test);
-        console.log(answers.current);
+        if (testId) {
+            console.log(test);
+            console.log(answers.current);
 
-        const encodedAnswers = Object.values(answers.current.answers).map(answer => {
-            if (typeof answer === 'string') {
-                return encode(answer as string, globalInjector.authService.key);
-            } else {
-                return encode((answer as number[]).join('|'), globalInjector.authService.key);
-            }
-        });
-        console.log(encodedAnswers);
+            const encodedAnswers = Object.values(answers.current.answers).map(answer => {
+                if (typeof answer === 'string') {
+                    return encode(answer as string, globalInjector.authService.key);
+                } else {
+                    return encode((answer as number[]).join('|'), globalInjector.authService.key);
+                }
+            });
+            console.log(encodedAnswers);
 
-        globalInjector.db.saveResult({ ...answers.current, answers: encodedAnswers })
-            .then(console.log)
-            .catch(console.log);
+            globalInjector.db.saveResult({ ...answers.current, testId, answers: encodedAnswers, createdAt: new Date() })
+                .then(console.log)
+                .catch(console.log);
+        }
     }
 
     if (!test) {

@@ -21,7 +21,7 @@ import {
 } from "firebase/firestore";
 import {FirebaseApp} from "firebase/app";
 import {ExtendedTest, Test} from "../models/test.model";
-import {decodeTest} from "../utils/secure.utils";
+import {decodeResults, decodeTest} from "../utils/secure.utils";
 
 export default class DatabaseService {
     private readonly _db: Firestore;
@@ -54,6 +54,27 @@ export default class DatabaseService {
         ]);
     }
 
+    getStats(count: number, testId: string, skip: unknown = null) {
+        const docs = query(
+            collection(this.db, "results"),
+            ...[where("testId", "==", testId),
+                orderBy("createdAt", 'desc'),
+                skip ? startAfter(skip) : null,
+                limit(count)].filter(Boolean) as QueryConstraint[]
+        );
+        return getDocs(docs).then(val => [
+            val.docs.map(doc => {
+                return (decodeResults({
+                    answers: [],
+                    ...doc.data(),
+                    id: doc.id,
+                    createdAt: (doc.data()['createdAt'] as Timestamp).toDate(),
+                }));
+            }),
+            val.docs[val.docs.length - 1]
+        ]);
+    }
+
     getTest(id: string) {
         return getDoc(doc(this.db, `tests/${id}`)).then(test => decodeTest(test.data() as ExtendedTest));
     }
@@ -68,7 +89,7 @@ export default class DatabaseService {
         return addDoc(collectionRef, test);
     }
 
-    saveResult(results: { email: string, answers: string[] }) {
+    saveResult(results: { testId: string, email: string, answers: string[], createdAt: Date }) {
         const collectionRef = collection(this.db, 'results');
         return addDoc(collectionRef, results);
     }

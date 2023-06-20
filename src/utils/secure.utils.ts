@@ -88,3 +88,10 @@ export function decodeTest(test: ExtendedTest): ExtendedTest {
         questions: test.questions.map(question => decodeQuestion(question)),
     }
 }
+
+export function decodeResults(obj: { answers: string[] } & Record<string, unknown>): { answers: string[] } {
+    return {
+        ...obj,
+        answers: obj.answers.map(answer => decode(answer, globalInjector.authService.key)),
+    }
+}

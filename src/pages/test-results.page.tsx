@@ -5,6 +5,7 @@ import {globalInjector} from "../services/global-injector.service";
 import {encode} from "../utils/secure.utils";
 import {TextField} from "@mui/material";
 import styled from "@emotion/styled";
+import {QueryDocumentSnapshot} from "firebase/firestore";
 
 
 const ColumnContainer = styled.div`
@@ -29,51 +30,20 @@ const EditTestForm = styled.div`
 
 
 export default function TestResultsPage() {
-    const navigate = useNavigate();
     const { testId } = useParams();
-    const [test, setTest] = useState<Test<true>>();
-    const answers = useRef<{ email: string, answers: Record<string, unknown> }>({
-        email: '',
-        answers: { }
-    });
+    const lastTest = useRef<QueryDocumentSnapshot>();
 
     useEffect(() => {
         if (testId) {
-            globalInjector.db.getTest(testId)
-                .then(test => setTest(test as Test<true>))
+            globalInjector.db.getStats(25, testId, lastTest.current)
+                .then(test => console.log(test))
                 .catch(console.log);
         }
     }, [testId]);
 
-    const submit = () => {
-        console.log(test);
-        console.log(answers.current);
-
-        const encodedAnswers = Object.values(answers.current.answers).map(answer => {
-            if (typeof answer === 'string') {
-                return encode(answer as string, globalInjector.authService.key);
-            } else {
-                return encode((answer as number[]).join('|'), globalInjector.authService.key);
-            }
-        });
-        console.log(encodedAnswers);
-
-        globalInjector.db.saveResult({ ...answers.current, answers: encodedAnswers })
-            .then(console.log)
-            .catch(console.log);
-    }
-
-    if (!test) {
-        return <ColumnContainer>
-            <EditTestForm>
-                <h3>Loading...</h3>
-            </EditTestForm>
-        </ColumnContainer>
-    }
-
     return <ColumnContainer>
         <EditTestForm>
-            stats
+            <p>Results:</p>
             { /*<TestContext.Provider value={(idx, value) => answers.current.answers[idx] = value}>
                 <Row>
                     <Title>{ test.title }</Title>
