@@ -18,9 +18,9 @@ function useInView(ref: MutableRefObject<HTMLElement | null>): boolean {
     return visible;
 }
 
-function useInViewCallBack(ref: MutableRefObject<HTMLElement | null>, callback?: (val: boolean) => void): void {
+function useInViewCallBack(ref: MutableRefObject<HTMLElement | null>, callback: (val: boolean) => void, threshold = 0): void {
     const observer = useRef(new IntersectionObserver((entries) => {
-        entries.length && callback && callback(entries[0].intersectionRatio != 0);
+        entries.length && callback(entries[0].intersectionRatio > 0);
     }));
 
     useEffect(() => {

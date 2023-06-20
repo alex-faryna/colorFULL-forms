@@ -1,54 +1,14 @@
 import styled from "@emotion/styled";
-import {Component, createRef, useEffect, useRef, useState} from "react";
-import {Link} from "react-router-dom";
+import {Component, createRef, useEffect, useImperativeHandle, useRef, useState} from "react";
+import {Link, useOutletContext} from "react-router-dom";
 import {useInViewCallBack} from "../hooks/in-view";
 import {createQuizButtonVisibilityService} from "../services/create-quiz-button-visible.service";
 import {globalInjector} from "../services/global-injector.service";
 import {onAuthStateChanged} from "firebase/auth";
 import useAuthUser from "../hooks/auth-user.hook";
 import {Test} from "../models/test.model";
-import { Timestamp } from 'firebase/firestore';
-
-class FlipAnimated extends Component {
-    private ref = createRef<HTMLElement>();
-
-    getSnapshotBeforeUpdate() {
-        console.log('p');
-        if (this.ref.current) {
-            // first
-            return this.ref.current.getBoundingClientRect();
-        }
-        return null;
-    }
-
-    // below `snapshot` is whatever returned `getSnapshotBeforeUpdate`
-    componentDidUpdate(prevProps: any, prevState: any, snapshot: any) {
-        console.log('p');
-        if (this.ref.current) {
-            const first = snapshot;
-            // last
-            const last = this.ref.current.getBoundingClientRect();
-            // invert
-            const deltaX = last.left - first.left;
-            const deltaY = last.top - first.top;
-
-            this.ref.current.animate([
-                { transform: `translate(${-deltaX}px, ${-deltaY}px)` },
-                // play
-                { transform: 'translate(0,0)' },
-            ], {
-                duration: 300,
-                easing: 'ease-out',
-            });
-        }
-    }
-    render() {
-
-        console.log("bro");
-        // @ts-ignore
-        return this.props.children;
-    }
-}
+import {QueryDocumentSnapshot, Timestamp} from 'firebase/firestore';
+import {scrollService} from "../services/scroll.service";
 
 const ColumnContainer = styled.div`
   display: flex;
@@ -149,17 +109,33 @@ function AddQuizCard() {
     </Card>;
 }
 
+function LastItem({ callback }: { callback: (val: boolean) => void }) {
+    const elem = useRef<HTMLDivElement>(null);
+    useInViewCallBack(elem, callback, 1.0);
+
+    return <Card ref={elem} style={{ height: '50px' }}>
+        <Placeholder>
+            Last item
+        </Placeholder>
+    </Card>;
+}
+
 function TestsListPage() {
     const [user] = useAuthUser(globalInjector.authService);
     const [tests, setTests] = useState<Test[]>([]);
+    const lastTest = useRef<QueryDocumentSnapshot>();
 
     useEffect(() => {
         if (user) {
-            globalInjector.db.getTestsList(0, 20, user.uid)
-                .then(val => setTests(val))
+            globalInjector.db.getTestsList(10, user.uid, lastTest.current)
+                .then(([val, last]) => {
+                    setTests(val);
+                    lastTest.current = last;
+                })
                 .catch(err => console.log(err));
         }
     }, [user]);
+
 
     return <ColumnContainer>
         <Grid>
@@ -167,6 +143,7 @@ function TestsListPage() {
             {
                 tests.map(test => <TestCard key={test.id} test={test} />)
             }
+            <LastItem callback={() => {}}/>
         </Grid>
     </ColumnContainer>
 }

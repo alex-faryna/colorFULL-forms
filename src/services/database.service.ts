@@ -13,7 +13,10 @@ import {
     limit,
     doc,
     orderBy,
-    Timestamp
+    startAfter,
+    Timestamp,
+    QueryConstraint,
+    QueryDocumentSnapshot
 } from "firebase/firestore";
 import {FirebaseApp} from "firebase/app";
 import {ExtendedTest, Test} from "../models/test.model";
@@ -29,20 +32,24 @@ export default class DatabaseService {
         this._db = getFirestore(app);
     }
 
-    getTestsList(skip: number, count: number, author: string) {
+    getTestsList(count: number, author: string, skip: unknown = null): Promise<[ExtendedTest[], QueryDocumentSnapshot]> {
         const docs = query(
             collection(this.db, "tests"),
-            where("author", "==", author),
-            orderBy("createdAt", 'desc'),
-            limit(count)
+            ...[where("author", "==", author),
+                orderBy("createdAt", 'desc'),
+                skip ? startAfter(skip) : null,
+                limit(count)].filter(Boolean) as QueryConstraint[]
         );
-        return getDocs(docs).then(val => val.docs.map(doc => {
-            return ({
-                ...doc.data(),
-                id: doc.id,
-                createdAt: (doc.data()['createdAt'] as Timestamp).toDate()
-            }) as ExtendedTest;
-        }));
+        return getDocs(docs).then(val => [
+            val.docs.map(doc => {
+                return ({
+                    ...doc.data(),
+                    id: doc.id,
+                    createdAt: (doc.data()['createdAt'] as Timestamp).toDate()
+                }) as ExtendedTest;
+            }),
+            val.docs[val.docs.length - 1]
+        ]);
     }
 
     getTest(id: string) {

@@ -31,12 +31,13 @@ export class RoutesConfig {
 
 const redirectFn = (to: string) => () => redirect(to);
 
+/*
 globalInjector.authService.listenUser(user => {
-    console.log(user);
+    // console.log(user);
     if (!user) {
         redirectFn(RoutesConfig.tests)();
     }
-})
+})*/
 
 
 
@@ -47,7 +48,7 @@ function RequireAuth() {
 
     useEffect(() => {
         if (!path && !loading && !user) {
-            console.log("HERE 2");
+            // console.log("HERE 2");
             navigate('/login',{ replace: true });
         }
     }, [path, loading, user]);
