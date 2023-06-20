@@ -8,7 +8,6 @@ import {onAuthStateChanged} from "firebase/auth";
 import useAuthUser from "../hooks/auth-user.hook";
 import {Test} from "../models/test.model";
 import {QueryDocumentSnapshot, Timestamp} from 'firebase/firestore';
-import {scrollService} from "../services/scroll.service";
 
 const ColumnContainer = styled.div`
   display: flex;
@@ -125,29 +124,24 @@ function TestsListPage() {
     const [tests, setTests] = useState<Test[]>([]);
     const lastTest = useRef<QueryDocumentSnapshot>();
 
-    const load = () => {
+    const load = (clear = false) => {
         if (user) {
             console.log('load');
-            globalInjector.db.getTestsList(5, user.uid, lastTest.current)
+            globalInjector.db.getTestsList(50, user.uid, lastTest.current)
                 .then(([val, last]) => {
-                    lastTest.current = last;
-                    setTests(t => [...t, ...val]);
+                    if (val.length) {
+                        lastTest.current = last;
+                        setTests(t => [...(clear ? [] : t), ...val]);
+                    }
                 })
                 .catch(err => console.log(err));
         }
     }
 
     useEffect(() => {
-        load();
+        load(true);
     }, [user]);
 
-
-    const inView = (val: boolean) => {
-        console.log(val);
-        if (val) {
-            load();
-        }
-    }
 
     return <ColumnContainer>
         <Grid>
@@ -156,7 +150,7 @@ function TestsListPage() {
                 tests.map(test => <TestCard key={test.id} test={test} />)
             }
             {
-                !!tests.length && <LastItem callback={inView}/>
+                !!tests.length && <LastItem callback={val => val && load()}/>
             }
         </Grid>
     </ColumnContainer>
