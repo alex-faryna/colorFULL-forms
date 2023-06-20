@@ -3,10 +3,11 @@ import {Link, useNavigate, useParams} from "react-router-dom";
 import {FormProvider, useController, useFieldArray, useForm, useFormContext, useWatch} from "react-hook-form";
 import {MenuItem, Select, Switch, TextField} from "@mui/material";
 import {Fragment, memo, useCallback, useEffect} from "react";
-import {FullSelectQuestion, questionTypes, stripObj, Test} from "../models/test.model";
+import {ExtendedTest, FullSelectQuestion, questionTypes, stripObj, Test} from "../models/test.model";
 import {TextFieldProps} from "@mui/material/TextField/TextField";
 import axios from "axios";
 import {globalInjector} from "../services/global-injector.service";
+import {encodeTest} from "../utils/secure.utils";
 
 const ColumnContainer = styled.div`
   display: flex;
@@ -279,9 +280,9 @@ function EditTestPage() {
         };
 
         console.log(fullTest);
-        const ret = testId
-            ? globalInjector.db.updateTest({ ...fullTest, id: testId })
-            : globalInjector.db.createTest(fullTest);
+        const ret = testId && testId !== '0'
+            ? globalInjector.db.updateTest(encodeTest({ ...fullTest, id: testId }))
+            : globalInjector.db.createTest(encodeTest(fullTest));
         ret.then(val => {
             navigate('/');
             console.log(val);

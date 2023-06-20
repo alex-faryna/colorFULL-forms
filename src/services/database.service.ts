@@ -45,7 +45,7 @@ export default class DatabaseService {
                 return ({
                     ...doc.data(),
                     id: doc.id,
-                    createdAt: (doc.data()['createdAt'] as Timestamp).toDate()
+                    createdAt: (doc.data()['createdAt'] as Timestamp).toDate(),
                 }) as ExtendedTest;
             }),
             val.docs[val.docs.length - 1]

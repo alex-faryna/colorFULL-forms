@@ -36,7 +36,12 @@ export interface FullSelectQuestion<T extends boolean = false> extends BaseQuest
     options: (T extends false ? { name: string } : { name: string, answer?: boolean })[];
 }
 
-type FullQuestion<T extends boolean> = FullTextQuestion | FullNumberQuestion | FullSelectQuestion<T>;
+export interface EncodedFullSelectQuestion extends BaseQuestion {
+    multiple: string;
+    options: { name: string, answer: string }[];
+}
+
+type FullQuestion<T extends boolean> = FullTextQuestion | FullNumberQuestion | FullSelectQuestion<T> | EncodedFullSelectQuestion;
 export type Question<T extends boolean = false> = Omit<FullQuestion<T>, T extends false ? 'correctAnswers' : ''>;
 
 export interface Test<T extends boolean = false> {
