@@ -14,6 +14,7 @@ import {
     doc,
     orderBy,
     startAfter,
+    deleteDoc,
     Timestamp,
     QueryConstraint,
     QueryDocumentSnapshot
@@ -65,5 +66,16 @@ export default class DatabaseService {
     createTest(test: ExtendedTest<true>): Promise<DocumentReference<DocumentData>> {
         const collectionRef = collection(this.db, 'tests');
         return addDoc(collectionRef, test);
+    }
+
+    saveResult(results: { email: string, answers: string[] }) {
+        const collectionRef = collection(this.db, 'results');
+        return addDoc(collectionRef, results);
+    }
+
+    deleteTest(test: ExtendedTest<true>) {
+        console.log(test.id);
+        const q = doc(this.db, 'tests', test.id);
+        return deleteDoc(q);
     }
 }

@@ -13,6 +13,7 @@ import {createContext, Fragment, memo, useCallback, useContext, useEffect, useRe
 import styled from "@emotion/styled";
 import {MenuItem, Select, Switch, TextField} from "@mui/material";
 import {TextInput} from "./edit-test.page";
+import {encode} from "../utils/secure.utils";
 
 const ColumnContainer = styled.div`
   display: flex;
@@ -178,7 +179,10 @@ export default function TestPage() {
     const navigate = useNavigate();
     const { testId } = useParams();
     const [test, setTest] = useState<Test<true>>();
-    const answers = useRef<Record<string, unknown>>({});
+    const answers = useRef<{ email: string, answers: Record<string, unknown> }>({
+        email: '',
+        answers: { }
+    });
 
     useEffect(() => {
         if (testId) {
@@ -192,8 +196,18 @@ export default function TestPage() {
         console.log(test);
         console.log(answers.current);
 
-        // const correctAnswers =
+        const encodedAnswers = Object.values(answers.current.answers).map(answer => {
+            if (typeof answer === 'string') {
+                return encode(answer as string, globalInjector.authService.key);
+            } else {
+                return encode((answer as number[]).join('|'), globalInjector.authService.key);
+            }
+        });
+        console.log(encodedAnswers);
 
+        globalInjector.db.saveResult({ ...answers.current, answers: encodedAnswers })
+            .then(console.log)
+            .catch(console.log);
     }
 
     if (!test) {
@@ -206,7 +220,7 @@ export default function TestPage() {
 
     return <ColumnContainer>
         <EditTestForm>
-            <TestContext.Provider value={(idx, value) => answers.current[idx] = value}>
+            <TestContext.Provider value={(idx, value) => answers.current.answers[idx] = value}>
                 <Row>
                     <Title>{ test.title }</Title>
                     <Right>
@@ -216,6 +230,8 @@ export default function TestPage() {
                     </Right>
                 </Row>
                 <p>{ test.description }</p>
+                <p>Enter email:</p>
+                <TextField variant='standard' fullWidth onChange={val => answers.current.email = val.target.value} />
                 <QuestionsBlock questions={test.questions}/>
                 <div>
                     <button onClick={submit}>Submit</button>

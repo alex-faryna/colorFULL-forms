@@ -6,7 +6,7 @@ import {createQuizButtonVisibilityService} from "../services/create-quiz-button-
 import {globalInjector} from "../services/global-injector.service";
 import {onAuthStateChanged} from "firebase/auth";
 import useAuthUser from "../hooks/auth-user.hook";
-import {Test} from "../models/test.model";
+import {ExtendedTest, Test} from "../models/test.model";
 import {QueryDocumentSnapshot, Timestamp} from 'firebase/firestore';
 
 const ColumnContainer = styled.div`
@@ -78,16 +78,31 @@ const Row = styled.div`
   }
 `;
 
-function TestCard({ test }: { test: Test }) {
+const Del = styled.span`
+  cursor: pointer;
+  text-decoration: underline;
+`;
+
+function TestCard({ test, deleted }: { test: Test, deleted: () => void }) {
+    const deleteTest = () => {
+        globalInjector.db.deleteTest(test as ExtendedTest<true>)
+            .then(val => {
+                deleted();
+                console.log(val);
+            })
+            .catch(console.log);
+    }
+
     return <Card>
         <InnerCard>
             <Row>
                 <span>{ test.title }</span>
-                <Link className='right' to={`${test.id}`}>
-                    <span>View</span>
-                </Link>
+                <Del className='right' onClick={() => deleteTest()}>Delete</Del>
                 <Link to={`${test.id}/edit`}>
                     <span>Edit</span>
+                </Link>
+                <Link to={`${test.id}`}>
+                    <span>View</span>
                 </Link>
             </Row>
             <p>{ (test.questions || []).length } Questions</p>
@@ -142,12 +157,15 @@ function TestsListPage() {
         load(true);
     }, [user]);
 
+    const del = (id: string) => {
+        setTests(tests => tests.filter(test => test.id !== id));
+    }
 
     return <ColumnContainer>
         <Grid>
             <AddQuizCard />
             {
-                tests.map(test => <TestCard key={test.id} test={test} />)
+                tests.map(test => <TestCard key={test.id} test={test} deleted={() => del(test.id)} />)
             }
             {
                 !!tests.length && <LastItem callback={val => val && load()}/>
