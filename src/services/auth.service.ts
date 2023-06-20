@@ -2,6 +2,7 @@ import {Auth, getAuth, onAuthStateChanged, signInWithEmailAndPassword, User} fro
 import { FirebaseApp } from "firebase/app";
 
 export default class AuthService {
+    private _key = '';
     private _auth: Auth;
 
     constructor(app: FirebaseApp) {
@@ -10,6 +11,10 @@ export default class AuthService {
 
     get user() {
         return this._auth.currentUser;
+    }
+
+    get key() {
+        return this._key;
     }
 
     listenUser(callback: (value: User | null) => void) {
