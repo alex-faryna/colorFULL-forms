@@ -6,6 +6,7 @@ import {RootState} from './store';
 import {createQuizButtonVisibilityService} from "./services/create-quiz-button-visible.service";
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
+import {setLoading} from "./store/tests-state";
 
 const Row = styled.div`
   width: 100%;
@@ -53,7 +54,7 @@ const Content = styled.div`
   height: 100%;
 `;
 
-function App() {
+function App({ loadingUser = false }: { loadingUser?: boolean }) {
     const dispatch = useDispatch();
     const state = useSelector((state: RootState) => state.tests);
 
@@ -66,7 +67,7 @@ function App() {
         <Header />
         <Content>
             {
-                {
+                loadingUser && {
                     loading: <span>Loading</span>,
                     error: <span>Error</span>,
                     idle: <Outlet />

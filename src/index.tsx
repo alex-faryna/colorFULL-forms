@@ -41,44 +41,29 @@ globalInjector.authService.listenUser(user => {
 
 
 function RequireAuth() {
-    // also check on route change
     const [user, loading] = useAuthUser(globalInjector.authService);
     const path = useMatch(RoutesConfig.test);
     const navigate = useNavigate();
-    const location = useLocation();
 
     useEffect(() => {
-        console.log(location);
-        const p = location.pathname;
-        // if (p.startsWith())
-
-        console.log("path;:");
-        console.log(path);
-        console.log("--");
-
-        if (!path && location.pathname !== '/login') {
-            navigate('/login', { replace: true });
-        }
-    }, [location]);
-
-    useEffect(() => {
-        if (!path && !loading && !user) {
+        if (!path && !user) {
+            console.log("HERE 2");
             navigate('/login',{ replace: true });
         }
-    }, [path, loading, user]);
+    }, [path, user]);
 
-    return <App />
+    return <App loadingUser={loading}/>
 }
 
 function NoAuth() {
-    const [user, loading] = useAuthUser(globalInjector.authService);
+    const [user] = useAuthUser(globalInjector.authService);
     const navigate = useNavigate();
 
     useEffect(() => {
         if (user) {
             navigate('/', { replace: true });
         }
-    }, [loading, user]);
+    }, [user]);
 
     return <LoginPage />
 }
