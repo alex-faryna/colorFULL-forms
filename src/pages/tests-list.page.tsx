@@ -106,6 +106,9 @@ function TestCard({ test, deleted }: { test: Test, deleted: () => void }) {
                 </Link>
             </Row>
             <p>{ (test.questions || []).length } Questions</p>
+            <Link to={`${test.id}/stats`}>
+                <span>Results</span>
+            </Link>
         </InnerCard>
     </Card>
 }

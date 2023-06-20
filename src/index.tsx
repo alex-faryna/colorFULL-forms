@@ -18,6 +18,7 @@ import {globalInjector} from "./services/global-injector.service";
 import TestPage from './pages/test.page';
 import LoginPage from "./pages/login.page";
 import useAuthUser from "./hooks/auth-user.hook";
+import TestResultsPage from "./pages/test-results.page";
 
 export class RoutesConfig {
     public static root = '/';
@@ -25,21 +26,12 @@ export class RoutesConfig {
     public static tests = 'tests';
     public static test = `${RoutesConfig.tests}/:testId`; // for unauthorized users too
     public static edit = `${RoutesConfig.test}/edit`;
+    public static stats = `${RoutesConfig.test}/stats`;
     public static login = `login`;
     // add stats mb page or mb in edit
 }
 
 const redirectFn = (to: string) => () => redirect(to);
-
-/*
-globalInjector.authService.listenUser(user => {
-    // console.log(user);
-    if (!user) {
-        redirectFn(RoutesConfig.tests)();
-    }
-})*/
-
-
 
 function RequireAuth() {
     const [user, loading] = useAuthUser(globalInjector.authService);
@@ -80,6 +72,9 @@ const router = createBrowserRouter(
                 <Route path={RoutesConfig.any} loader={redirectFn("") }></Route>
             </Route>
             <Route path={RoutesConfig.test} Component={TestPage}>
+                <Route path={RoutesConfig.any} loader={redirectFn("") }></Route>
+            </Route>
+            <Route path={RoutesConfig.stats} Component={TestResultsPage}>
                 <Route path={RoutesConfig.any} loader={redirectFn("") }></Route>
             </Route>
             <Route path={RoutesConfig.root} loader={redirectFn(RoutesConfig.tests) } />
